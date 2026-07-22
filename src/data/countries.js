@@ -1,0 +1,1 @@
+export const countries=[{code:'DE',flag:'🇩🇪',name:'GERMANY'},{code:'CA',flag:'🇨🇦',name:'CANADA'},{code:'US',flag:'🇺🇸',name:'UNITED STATES'},{code:'GB',flag:'🇬🇧',name:'UNITED KINGDOM'},{code:'AU',flag:'🇦🇺',name:'AUSTRALIA'}];

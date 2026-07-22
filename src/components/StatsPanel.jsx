@@ -1,0 +1,1 @@
+import React from'react';const stats=[['?','3,000+','Questions'],['▤','20+','Subjects'],['▣','10','Mock Exams'],['↗','Track Your','Progress']];export default function StatsPanel(){return <section className="stats">{stats.map(x=><div className="stat" key={x[2]}><i>{x[0]}</i><strong>{x[1]}</strong><span>{x[2]}</span></div>)}</section>}
