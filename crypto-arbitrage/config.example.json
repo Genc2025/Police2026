@@ -4,6 +4,7 @@
   "slippage_pct_each_leg": 0.05,
   "safety_buffer_pct": 0.05,
   "minimum_net_profit_eur": 0.10,
+  "sqlite_path": "paper_arbitrage.db",
   "pairs": ["BTC/EUR", "ETH/EUR"],
   "fees_pct": {
     "binance": 0.10,
