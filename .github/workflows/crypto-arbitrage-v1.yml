@@ -1,0 +1,35 @@
+name: crypto-arbitrage-v1
+
+on:
+  push:
+    branches:
+      - crypto-arbitrage-v1
+    paths:
+      - 'crypto-arbitrage/**'
+      - '.github/workflows/crypto-arbitrage-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r crypto-arbitrage/requirements.txt
+
+      - name: Unit tests
+        run: pytest -q crypto-arbitrage/tests
+
+      - name: Live public-market smoke test
+        run: python crypto-arbitrage/scanner.py --once --no-db
