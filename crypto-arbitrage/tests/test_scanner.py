@@ -56,10 +56,10 @@ def test_fees_can_turn_gross_spread_negative_net():
     assert result.net_profit_eur < 0
 
 
-def test_requires_full_top_of_book_liquidity():
+def test_requires_full_top_of_book_liquidity_in_either_direction():
     quotes = [
-        quote("binance", 99.8, 10, 100.0, 0.10),
-        quote("kraken", 110.0, 0.10, 110.2, 10),
+        quote("binance", 99.8, 0.10, 100.0, 0.10),
+        quote("kraken", 110.0, 0.10, 110.2, 0.10),
     ]
     result = evaluate(quotes, config())
     assert result is None
