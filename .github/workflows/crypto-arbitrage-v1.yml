@@ -31,5 +31,19 @@ jobs:
       - name: Unit tests
         run: pytest -q crypto-arbitrage/tests
 
-      - name: Live public-market smoke test
-        run: python crypto-arbitrage/scanner.py --once --no-db
+      - name: Live public-market paper snapshot
+        run: python crypto-arbitrage/scanner.py --once
+
+      - name: Paper report
+        run: python crypto-arbitrage/report.py | tee crypto-arbitrage/paper-report.txt
+
+      - name: Upload paper evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crypto-arbitrage-paper-snapshot
+          path: |
+            crypto-arbitrage/paper_arbitrage.db
+            crypto-arbitrage/paper-report.txt
+          if-no-files-found: warn
+          retention-days: 14
