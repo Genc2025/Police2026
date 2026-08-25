@@ -1,0 +1,14 @@
+{
+  "virtual_capital_eur": 100.0,
+  "scan_interval_seconds": 3.0,
+  "slippage_pct_each_leg": 0.05,
+  "safety_buffer_pct": 0.05,
+  "minimum_net_profit_eur": 0.10,
+  "pairs": ["BTC/EUR", "ETH/EUR"],
+  "fees_pct": {
+    "binance": 0.10,
+    "kraken": 0.40,
+    "coinbase": 0.60,
+    "bitstamp": 0.30
+  }
+}
