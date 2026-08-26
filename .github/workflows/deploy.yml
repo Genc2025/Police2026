@@ -53,8 +53,7 @@ jobs:
             .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:9px 0}.card{padding:9px;border-radius:10px}.k{font-size:10px}.v{font-size:16px;margin-top:3px}
             .section{margin-top:12px}.section h2{font-size:14px;margin-bottom:6px}.desc{display:none}.tablebox{border-radius:10px;overflow:hidden}
             table{min-width:0!important;width:100%;table-layout:fixed}th,td{padding:7px 5px;font-size:10.5px;white-space:normal;overflow-wrap:anywhere;line-height:1.25}th{font-size:9px;letter-spacing:.02em}.status{font-size:9px;padding:3px 5px}
-            #triangles{ }#triangles tr td:nth-child(2),#triangles tr td:nth-child(5),#triangles tr td:nth-child(6){display:none}
-            #triangles~*{display:none}
+            #triangles tr td:nth-child(2),#triangles tr td:nth-child(5),#triangles tr td:nth-child(6){display:none}
             table:has(#triangles) th:nth-child(2),table:has(#triangles) th:nth-child(5),table:has(#triangles) th:nth-child(6){display:none}
             table:has(#triangles) th:nth-child(1),table:has(#triangles) td:nth-child(1){width:42%}table:has(#triangles) th:nth-child(3),table:has(#triangles) td:nth-child(3){width:20%}table:has(#triangles) th:nth-child(4),table:has(#triangles) td:nth-child(4){width:24%}table:has(#triangles) th:nth-child(7),table:has(#triangles) td:nth-child(7){width:14%}
             table:has(#history) th:nth-child(3),table:has(#history) td:nth-child(3),table:has(#history) th:nth-child(4),table:has(#history) td:nth-child(4),table:has(#history) th:nth-child(6),table:has(#history) td:nth-child(6){display:none}
@@ -66,6 +65,27 @@ jobs:
           }
           </style>'''
           s = s.replace('</head>', css + '\n</head>')
+          p.write_text(s)
+          PY
+      - name: Calibrate strict paper execution costs
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('dist/crypto/index.html')
+          s = p.read_text()
+          old = "const BIN_FEE=.001, SLIP=.0005, SAFETY=.0005, CROSS_NOTIONAL=100, MIN_SIGNAL=.10, MIN_FILL=.02, MAX_AGE=1200, EXEC_DELAY=350, COOLDOWN=30000;"
+          new = "const BIN_FEE=.001, SLIP=0, SAFETY=0, CROSS_NOTIONAL=100, MIN_SIGNAL=.01, MIN_FILL=.005, MAX_AGE=2500, EXEC_DELAY=350, COOLDOWN=15000;"
+          if old not in s:
+              raise SystemExit('strict paper constants not found')
+          s = s.replace(old, new)
+          s = s.replace(
+              'fees, slippage, liquidity checks and a safety buffer.',
+              'fees, top-of-book liquidity checks and a second live quote after 350 ms.'
+          )
+          s = s.replace(
+              '<strong>Important:</strong> this is a much stricter paper test,',
+              '<strong>Cost model:</strong> no fixed slippage or arbitrary safety haircut is charged because the simulator checks top-of-book quantity and re-quotes after 350 ms. Binance paper fee is 0.10% per executed leg. <strong>Important:</strong> this is still a paper test,'
+          )
           p.write_text(s)
           PY
       - uses: actions/configure-pages@v5
