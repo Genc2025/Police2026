@@ -1,17 +1,9 @@
 {
   "balance": 100.0,
-  "best_cycle": "XRP/USDT bitstamp\u2192binance",
-  "best_net": -0.2872523878457116,
+  "best_cycle": null,
+  "best_net": null,
   "cancelled": 0,
-  "current_best": {
-    "buy": "binance",
-    "gross_spread_pct": -0.013427351922756792,
-    "net": -0.4130736827971191,
-    "pair": "ETH/USDT",
-    "sell": "bitstamp",
-    "skew_ms": 59.41706599696772
-  },
-  "evaluations": 873943,
+  "evaluations": 0,
   "executed": 0,
   "execution_delay_ms": 350,
   "fee_assumptions": {
@@ -20,15 +12,9 @@
     "coinbase": 0.006,
     "kraken": 0.004
   },
-  "feeds_online": {
-    "binance": true,
-    "bitstamp": true,
-    "coinbase": false,
-    "kraken": true
-  },
   "history": [],
   "inventory_model": "synthetic_prefunded_two_leg",
-  "last_error": "state publish failed: Command '['git', 'push', 'origin', 'HEAD:claude/html-demo-rn-app-jz85o7']' returned non-zero exit status 1.",
+  "last_error": null,
   "markets": {
     "binance": [
       "AAVE/USDT",
@@ -111,12 +97,12 @@
     "SHIB/USDT",
     "HBAR/USDT"
   ],
-  "quote_updates": 7504177,
+  "quote_updates": 0,
   "rebalancing_cost_included": false,
-  "run_started_at": "2026-08-26T01:24:47.411614+00:00",
+  "run_started_at": "2026-08-26T07:02:37.055402+00:00",
   "run_status": "running",
   "signals": 0,
   "strategy": "cross_exchange_buy_low_sell_high",
-  "updated_at": "2026-08-26T07:01:48.944485+00:00",
+  "updated_at": "2026-08-26T07:02:37.055707+00:00",
   "version": 3
 }
