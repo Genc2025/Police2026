@@ -24,6 +24,22 @@ jobs:
         run: |
           mkdir -p dist/crypto
           cp -R crypto-arbitrage/pages/. dist/crypto/
+      - name: Expand crypto dashboard to 18 USDT pairs
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('dist/crypto/index.html')
+          s = p.read_text()
+          s = s.replace(
+              "const CROSS_PAIRS=['BTC/USDT','ETH/USDT','SOL/USDT','XRP/USDT','ADA/USDT','LINK/USDT','DOGE/USDT','AVAX/USDT'];",
+              "const CROSS_PAIRS=['BTC/USDT','ETH/USDT','SOL/USDT','XRP/USDT','ADA/USDT','LINK/USDT','DOGE/USDT','AVAX/USDT','BCH/USDT','LTC/USDT','DOT/USDT','UNI/USDT','AAVE/USDT','NEAR/USDT','ATOM/USDT','SUI/USDT','SHIB/USDT','HBAR/USDT'];"
+          )
+          s = s.replace(
+              "const krPairs=['ETH/USDT','SOL/USDT','XRP/USDT','ADA/USDT','LINK/USDT','AVAX/USDT'];",
+              "const krPairs=['ETH/USDT','SOL/USDT','XRP/USDT','ADA/USDT','LINK/USDT','AVAX/USDT','BCH/USDT','LTC/USDT','DOT/USDT','UNI/USDT','AAVE/USDT','NEAR/USDT','ATOM/USDT','SUI/USDT','SHIB/USDT','HBAR/USDT'];"
+          )
+          p.write_text(s)
+          PY
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
