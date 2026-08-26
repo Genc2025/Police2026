@@ -1,17 +1,17 @@
 {
   "balance": 100.0,
-  "best_cycle": "XRP/USDT binance\u2192bitstamp",
-  "best_net": -0.22317160153748716,
-  "cancelled": 0,
+  "best_cycle": "XRP/USDT bitstamp\u2192binance",
+  "best_net": 0.10361029255203391,
+  "cancelled": 1,
   "current_best": {
     "buy": "bitstamp",
-    "gross_spread_pct": -0.023201991836963032,
-    "net": -0.4228092534755916,
+    "gross_spread_pct": -0.02018969132716597,
+    "net": -0.41980899313094255,
     "pair": "BTC/USDT",
     "sell": "binance",
-    "skew_ms": 276.4882530027535
+    "skew_ms": 356.6325179999694
   },
-  "evaluations": 829615,
+  "evaluations": 842262,
   "executed": 0,
   "execution_delay_ms": 350,
   "fee_assumptions": {
@@ -26,9 +26,29 @@
     "coinbase": false,
     "kraken": false
   },
-  "history": [],
+  "history": [
+    {
+      "balance": 100.0,
+      "buy_exchange": "bitstamp",
+      "cycle": "XRP/USDT bitstamp\u2192binance",
+      "fill": null,
+      "legs": "BUY bitstamp | SELL binance",
+      "pair": "XRP/USDT",
+      "sell_exchange": "binance",
+      "signal": 0.10361029255203391,
+      "status": "CANCELLED",
+      "time": "2026-08-26T12:32:43.612099+00:00"
+    }
+  ],
   "inventory_model": "synthetic_prefunded_two_leg",
   "last_error": "state publish failed: Command '['git', 'push', 'origin', 'HEAD:claude/html-demo-rn-app-jz85o7']' returned non-zero exit status 1.",
+  "last_signal": {
+    "buy": "bitstamp",
+    "expected_net": 0.10361029255203391,
+    "pair": "XRP/USDT",
+    "sell": "binance",
+    "time": "2026-08-26T12:32:43.260981+00:00"
+  },
   "markets": {
     "binance": [
       "AAVE/USDT",
@@ -111,12 +131,12 @@
     "SHIB/USDT",
     "HBAR/USDT"
   ],
-  "quote_updates": 8422100,
+  "quote_updates": 8960311,
   "rebalancing_cost_included": false,
   "run_started_at": "2026-08-26T07:02:37.055402+00:00",
   "run_status": "running",
-  "signals": 0,
+  "signals": 1,
   "strategy": "cross_exchange_buy_low_sell_high",
-  "updated_at": "2026-08-26T12:29:27.768887+00:00",
+  "updated_at": "2026-08-26T12:32:43.612271+00:00",
   "version": 3
 }
