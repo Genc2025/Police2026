@@ -10,7 +10,7 @@
   "contrarian_wins": 4,
   "entry_latency_ms": 120,
   "entry_policy": "strict_plus_contrarian_v3",
-  "equity": 88.5847785817076,
+  "equity": 88.58133987086535,
   "exit_latency_ms": 100,
   "history": [
     {
@@ -8038,24 +8038,24 @@
       "time": "2026-08-26T05:18:39.189445+00:00"
     },
     "ETHUSDT": {
-      "confidence": 0.29942181269436485,
+      "confidence": 0.16079305747632952,
       "funding": null,
-      "mid": 2455.315,
-      "predicted_edge_pct": 0.005621521037425651,
+      "mid": 2455.225,
+      "predicted_edge_pct": 0.0033123993440879983,
       "regime": "mixed",
-      "score": 0.2737434185061312,
-      "spread_pct": 0.00040727971768258976,
-      "time": "2026-08-26T05:18:42.422121+00:00"
+      "score": 0.1734576063848137,
+      "spread_pct": 0.00040729464713899045,
+      "time": "2026-08-26T05:18:43.411600+00:00"
     },
     "SOLUSDT": {
-      "confidence": 0.6218153403228625,
+      "confidence": 0.06090229062168285,
       "funding": null,
-      "mid": 96.465,
-      "predicted_edge_pct": 0.00835677810643765,
+      "mid": 96.455,
+      "predicted_edge_pct": 0.0012421194462767253,
       "regime": "mixed",
-      "score": 0.4421575717691879,
-      "spread_pct": 0.010366454154361805,
-      "time": "2026-08-26T05:18:42.423431+00:00"
+      "score": -0.03804390702542229,
+      "spread_pct": 0.010367528899477379,
+      "time": "2026-08-26T05:18:53.562257+00:00"
     }
   },
   "losses": 618,
@@ -8186,8 +8186,8 @@
     "SOLUSDT"
   ],
   "taker_fee_assumption": 0.0005,
-  "unrealized_pnl": -0.04881846313675453,
-  "updated_at": "2026-08-26T05:18:42.433582+00:00",
+  "unrealized_pnl": -0.05225717397900098,
+  "updated_at": "2026-08-26T05:18:53.604152+00:00",
   "version": 1,
   "wins": 4
 }
