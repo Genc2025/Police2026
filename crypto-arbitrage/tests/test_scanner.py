@@ -16,6 +16,8 @@ def config(**overrides):
         "slippage_pct_each_leg": 0.05,
         "safety_buffer_pct": 0.05,
         "minimum_net_profit_eur": 0.10,
+        "max_quote_latency_ms": 1500.0,
+        "max_snapshot_skew_ms": 1000.0,
         "pairs": ["BTC/EUR"],
         "fees_pct": {
             "binance": 0.10,
@@ -28,8 +30,8 @@ def config(**overrides):
     return value
 
 
-def quote(exchange, bid, bid_qty, ask, ask_qty):
-    return Quote(exchange, "BTC/EUR", bid, bid_qty, ask, ask_qty, "2026-08-26T00:00:00.000+00:00")
+def quote(exchange, bid, bid_qty, ask, ask_qty, *, observed_at="2026-08-26T00:00:00.000+00:00", latency_ms=10.0):
+    return Quote(exchange, "BTC/EUR", bid, bid_qty, ask, ask_qty, observed_at, latency_ms)
 
 
 def test_selects_best_cross_exchange_route():
@@ -79,3 +81,19 @@ def test_higher_safety_buffer_reduces_net_profit():
     high = evaluate(quotes, config(safety_buffer_pct=0.50))
     assert low is not None and high is not None
     assert low.net_profit_eur > high.net_profit_eur
+
+
+def test_rejects_route_when_quote_latency_is_too_high():
+    quotes = [
+        quote("binance", 99.8, 10, 100.0, 10, latency_ms=2000.0),
+        quote("kraken", 102.0, 10, 102.2, 10),
+    ]
+    assert evaluate(quotes, config(max_quote_latency_ms=1000.0)) is None
+
+
+def test_rejects_route_when_snapshot_skew_is_too_high():
+    quotes = [
+        quote("binance", 99.8, 10, 100.0, 10, observed_at="2026-08-26T00:00:00.000+00:00"),
+        quote("kraken", 102.0, 10, 102.2, 10, observed_at="2026-08-26T00:00:02.500+00:00"),
+    ]
+    assert evaluate(quotes, config(max_snapshot_skew_ms=1000.0)) is None
