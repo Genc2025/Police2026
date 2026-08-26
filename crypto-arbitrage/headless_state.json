@@ -5,13 +5,13 @@
   "cancelled": 0,
   "current_best": {
     "buy": "bitstamp",
-    "gross_spread_pct": -0.03160505032496763,
-    "net": -0.4311787249388317,
-    "pair": "ETH/USDT",
+    "gross_spread_pct": 0.0011903539289592757,
+    "net": -0.3985144039156978,
+    "pair": "BTC/USDT",
     "sell": "binance",
-    "skew_ms": 416.46552800000336
+    "skew_ms": 174.95999200002643
   },
-  "evaluations": 15366,
+  "evaluations": 30915,
   "executed": 0,
   "execution_delay_ms": 350,
   "fee_assumptions": {
@@ -28,7 +28,7 @@
   },
   "history": [],
   "inventory_model": "synthetic_prefunded_two_leg",
-  "last_error": null,
+  "last_error": "state publish failed: Command '['git', 'push', 'origin', 'HEAD:claude/html-demo-rn-app-jz85o7']' returned non-zero exit status 1.",
   "markets": {
     "binance": [
       "AAVE/USDT",
@@ -111,12 +111,12 @@
     "SHIB/USDT",
     "HBAR/USDT"
   ],
-  "quote_updates": 123917,
+  "quote_updates": 237168,
   "rebalancing_cost_included": false,
   "run_started_at": "2026-08-26T07:02:37.055402+00:00",
   "run_status": "running",
   "signals": 0,
   "strategy": "cross_exchange_buy_low_sell_high",
-  "updated_at": "2026-08-26T07:07:39.080403+00:00",
+  "updated_at": "2026-08-26T07:12:40.234167+00:00",
   "version": 3
 }
