@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="sq">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark" />
+  <title>Crypto Arbitrage Monitor</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">CRYPTO ARBITRAGE</p>
+        <h1>Trading Monitor</h1>
+        <p class="subtitle">Live scanner + paper-trading history. Nuk ekzekuton para reale.</p>
+      </div>
+      <div class="status-wrap">
+        <span id="modeBadge" class="badge badge-paper">PAPER</span>
+        <span id="connectionBadge" class="badge badge-wait">LOADING</span>
+      </div>
+    </header>
+
+    <section class="stats" aria-label="Përmbledhje">
+      <article class="stat-card primary">
+        <span>Paper Balance</span>
+        <strong id="paperBalance">—</strong>
+        <small id="startingCapital">Start: —</small>
+      </article>
+      <article class="stat-card">
+        <span>Net P&amp;L</span>
+        <strong id="netPnl">—</strong>
+        <small id="pnlStatus">Pa trade</small>
+      </article>
+      <article class="stat-card">
+        <span>Paper Trades</span>
+        <strong id="paperTrades">—</strong>
+        <small><span id="wins">0</span> fituese · <span id="losses">0</span> humbëse</small>
+      </article>
+      <article class="stat-card">
+        <span>Scans</span>
+        <strong id="totalScans">—</strong>
+        <small><span id="candidateCount">0</span> routes të analizuara</small>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <p class="section-kicker">MARKET</p>
+          <h2>Çmimet e fundit</h2>
+        </div>
+        <span id="lastUpdated" class="muted">—</span>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Pair</th>
+              <th>Exchange</th>
+              <th class="num">Bid</th>
+              <th class="num">Ask</th>
+              <th class="num">Spread</th>
+              <th class="num">Latency</th>
+            </tr>
+          </thead>
+          <tbody id="marketRows">
+            <tr><td colspan="6" class="empty">Duke lexuar market data…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <p class="section-kicker">SCANNER</p>
+          <h2>Opportunity-t e fundit</h2>
+        </div>
+        <div class="legend"><span class="dot good"></span> fitim neto <span class="dot bad"></span> humbje neto</div>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Koha</th>
+              <th>Pair</th>
+              <th>BLEJ</th>
+              <th>SHIT</th>
+              <th class="num">Gross</th>
+              <th class="num">Costs</th>
+              <th class="num">Net</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="opportunityRows">
+            <tr><td colspan="8" class="empty">Duke analizuar routes…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel history-panel">
+      <div class="panel-head">
+        <div>
+          <p class="section-kicker">HISTORY</p>
+          <h2>Blerje &amp; shitje</h2>
+          <p class="muted small">Vetëm trade që kalojnë pragun e fitimit. Derisa LIVE është OFF, çdo rresht shënohet PAPER.</p>
+        </div>
+        <button id="refreshBtn" type="button">Refresh</button>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Koha</th>
+              <th>Mode</th>
+              <th>Pair</th>
+              <th>Blej te</th>
+              <th class="num">Buy price</th>
+              <th>Shit te</th>
+              <th class="num">Sell price</th>
+              <th class="num">Capital</th>
+              <th class="num">Gross %</th>
+              <th class="num">Net P&amp;L</th>
+            </tr>
+          </thead>
+          <tbody id="tradeRows">
+            <tr><td colspan="10" class="empty">Ende nuk ka paper trade që ka kaluar pragun.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer>
+      <span id="dbName">DB: —</span>
+      <span>Auto-refresh: 2s</span>
+    </footer>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>
