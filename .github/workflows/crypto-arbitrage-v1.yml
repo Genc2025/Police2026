@@ -34,25 +34,25 @@ jobs:
       - name: Live USDT market discovery
         run: python crypto-arbitrage/market_probe.py --quote USDT --assets BTC ETH SOL XRP ADA LINK DOGE AVAX
 
-      - name: Realtime WebSocket smoke test
+      - name: Realtime USDT WebSocket smoke test
         run: python crypto-arbitrage/realtime.py --seconds 12
 
-      - name: Cross-exchange live paper sample
+      - name: Cross-exchange USDT paper sample
         run: python crypto-arbitrage/scanner.py --cycles 10
 
-      - name: Binance triangular live paper sample
+      - name: Binance USDT triangular paper sample
         run: python crypto-arbitrage/triangular.py --cycles 10
 
-      - name: Combined paper report
+      - name: Combined USDT paper report
         run: python crypto-arbitrage/report.py | tee crypto-arbitrage/paper-report.txt
 
       - name: Upload paper evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: crypto-arbitrage-paper-snapshot
+          name: crypto-arbitrage-usdt-paper-snapshot
           path: |
-            crypto-arbitrage/paper_arbitrage.db
+            crypto-arbitrage/paper_arbitrage_usdt.db
             crypto-arbitrage/paper-report.txt
           if-no-files-found: warn
           retention-days: 14
