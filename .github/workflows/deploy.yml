@@ -134,6 +134,17 @@ jobs:
           s = s.replace('</head>', sync + '\n</head>')
           p.write_text(s)
           PY
+      - name: Clarify background runner vs browser feeds
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('dist/crypto/index.html')
+          s = p.read_text()
+          s = s.replace('<span id="liveText">Connecting…</span>', '<span id="liveText">Browser feeds connecting…</span>')
+          s = s.replace("$('liveText').textContent=online>=2?'Live test running':'Connecting…';", "$('liveText').textContent=online>=2?'Browser feeds live':'Browser feeds connecting…';")
+          s = s.replace('REAL live market data • 100 USDT virtual wallet • simulated execution • no API keys • no real money', 'GitHub runner works in background • browser connects only to display live quotes • 100 USDT paper wallet')
+          p.write_text(s)
+          PY
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
