@@ -21,7 +21,8 @@
     <div class="card"><div class="k">Net P&amp;L</div><div id="pnl" class="v">—</div></div>
     <div class="card"><div class="k">Wins / losses</div><div id="wl" class="v">—</div></div>
     <div class="card"><div class="k">Signals / opened / closed</div><div id="activity" class="v">—</div></div>
-    <div class="card"><div class="k">Server cycle</div><div id="clock" class="v">—</div></div>
+    <div class="card"><div class="k">Current runner cycle</div><div id="clock" class="v">—</div></div>
+    <div class="card"><div class="k">Recorded experiment uptime</div><div id="uptime" class="v">—</div></div>
   </div>
   <h2>BTC / ETH / SOL live model state</h2>
   <div id="coins" class="coins"></div>
@@ -29,28 +30,30 @@
   <div id="positions" class="panel">None</div>
   <h2>Closed paper trades</h2>
   <div class="tablebox"><table><thead><tr><th>Time</th><th>Coin</th><th>Side</th><th>Entry</th><th>Exit</th><th>Net</th><th>Held</th><th>Reason</th><th>Result</th></tr></thead><tbody id="history"></tbody></table></div>
-  <div class="note">STRICT trades require predicted edge above the modeled round-trip cost hurdle. EXPLORE trades are small paper-only training trades used to collect outcomes and adapt feature weights; their P&amp;L still includes modeled taker fees and bid/ask execution. Server state is written about every 30 seconds. Refreshing this page never resets the paper wallet.</div>
+  <div class="note">The current runner clock restarts only when a new GitHub runner process starts, for example after a code update or the scheduled 6-hour restart. It does not mean the wallet or trade history reset. “Recorded experiment uptime” is measured from the oldest retained paper trade/current run. Server timestamps are displayed in your phone’s local timezone. State is written about every 30 seconds and this page polls about every 10 seconds.</div>
 </div>
 <script>
 const URL='https://raw.githubusercontent.com/Genc2025/Police2026/claude/html-demo-rn-app-jz85o7/crypto-arbitrage/futures_state.json';
 let state=null;
 const $=id=>document.getElementById(id), num=(x,p=4)=>Number.isFinite(+x)?(+x).toFixed(p):'—';
 function cls(n){return +n>0?'green':+n<0?'red':''}
+function fmtElapsed(sec){sec=Math.max(0,Math.floor(sec||0));const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')}
 function render(){
  if(!state)return;
  const bal=+state.balance||100, eq=Number.isFinite(+state.equity)?+state.equity:bal, pnl=eq-(+state.initial_balance||100);
  $('balance').textContent=num(bal)+' USDT'; $('equity').textContent=num(eq)+' USDT'; $('pnl').textContent=(pnl>=0?'+':'')+num(pnl)+' USDT'; $('pnl').className='v '+cls(pnl);
  $('wl').textContent=(state.wins||0)+' / '+(state.losses||0);
  $('activity').textContent=(state.signals||0)+' / '+(state.opened||0)+' / '+(state.closed||0);
- const u=Date.parse(state.updated_at||''); $('updated').textContent=Number.isFinite(u)?'Server: '+new Date(u).toLocaleTimeString():'Server: —';
+ const u=Date.parse(state.updated_at||'');
+ if(Number.isFinite(u)){const age=Math.max(0,Math.round((Date.now()-u)/1000));$('updated').textContent='Server: '+new Date(u).toLocaleTimeString()+' • '+age+'s ago';}else $('updated').textContent='Server: —';
  const latest=state.latest||{};
  $('coins').innerHTML=['BTCUSDT','ETHUSDT','SOLUSDT'].map(s=>{const d=latest[s]||{};const score=+d.score||0, conf=+d.confidence||0, edge=+d.predicted_edge_pct||0;return `<div class="coin"><h3>${s}</h3><div class="row"><span>Score</span><b class="${cls(score)}">${score>=0?'+':''}${num(score,3)}</b></div><div class="row"><span>Confidence</span><b>${num(conf*100,1)}%</b></div><div class="row"><span>Pred. edge</span><b>${num(edge,4)}%</b></div><div class="row"><span>Spread</span><b>${num(d.spread_pct,4)}%</b></div><div class="row"><span>Regime</span><b>${d.regime||'—'}</b></div><div class="row"><span>Mid</span><b>${num(d.mid,4)}</b></div></div>`}).join('');
  const ps=state.positions||{}; const keys=Object.keys(ps); $('positions').innerHTML=keys.length?keys.map(s=>{const p=ps[s];return `<div class="row"><span>${s} ${p.side} • ${p.entry_mode||'STRICT'}</span><b>entry ${num(p.entry_price,5)} • ${num(p.notional,2)} USDT</b></div>`}).join(''):'None';
  const h=Array.isArray(state.history)?state.history:[]; $('history').innerHTML=h.length?h.slice(0,100).map(x=>`<tr><td>${new Date(x.time).toLocaleTimeString()}</td><td>${x.symbol}</td><td>${x.side}</td><td>${num(x.entry_price,5)}</td><td>${num(x.exit_price,5)}</td><td class="${cls(x.net_pnl)}">${+x.net_pnl>=0?'+':''}${num(x.net_pnl,4)}</td><td>${num(x.held_seconds,1)}s</td><td>${x.reason}</td><td>${x.status}</td></tr>`).join(''):'<tr><td colspan="9">No closed trades yet.</td></tr>';
- paintClock();
+ paintClocks();
 }
-function paintClock(){if(!state)return;const t=Date.parse(state.run_started_at||'');if(!Number.isFinite(t)){ $('clock').textContent='—';return;}const sec=Math.max(0,Math.min(21600,Math.floor((Date.now()-t)/1000)));const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;$('clock').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+' / 06:00';}
+function paintClocks(){if(!state)return;const run=Date.parse(state.run_started_at||'');if(Number.isFinite(run)){$('clock').textContent=fmtElapsed(Math.min(21600,(Date.now()-run)/1000))+' / 06:00:00'}else $('clock').textContent='—';const hist=Array.isArray(state.history)?state.history:[];const times=hist.map(x=>Date.parse(x.time)).filter(Number.isFinite);if(Number.isFinite(run))times.push(run);if(times.length){const first=Math.min(...times);$('uptime').textContent=fmtElapsed((Date.now()-first)/1000)}else $('uptime').textContent='—';if(Number.isFinite(Date.parse(state.updated_at||''))){const u=Date.parse(state.updated_at);const age=Math.max(0,Math.round((Date.now()-u)/1000));$('updated').textContent='Server: '+new Date(u).toLocaleTimeString()+' • '+age+'s ago';}}
 async function load(){try{const r=await fetch(URL+'?t='+Date.now(),{cache:'no-store'});if(r.ok){state=await r.json();render()}}catch(e){}}
-load();setInterval(load,10000);setInterval(paintClock,1000);
+load();setInterval(load,10000);setInterval(paintClocks,1000);
 </script>
 </body></html>
