@@ -4,6 +4,8 @@
   "slippage_pct_each_leg": 0.05,
   "safety_buffer_pct": 0.05,
   "minimum_net_profit_eur": 0.10,
+  "max_quote_latency_ms": 1500.0,
+  "max_snapshot_skew_ms": 1000.0,
   "sqlite_path": "paper_arbitrage.db",
   "pairs": ["BTC/EUR", "ETH/EUR"],
   "fees_pct": {
