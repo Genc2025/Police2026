@@ -1,15 +1,7 @@
 name: Crypto Futures Paper 6h
 
 on:
-  schedule:
-    - cron: '23 */6 * * *'
   workflow_dispatch:
-  push:
-    branches: ["claude/html-demo-rn-app-jz85o7"]
-    paths:
-      - "crypto-arbitrage/futures_runner.py"
-      - "crypto-arbitrage/futures_entrypoint.py"
-      - ".github/workflows/crypto-futures-paper-6h.yml"
 
 permissions:
   contents: write
