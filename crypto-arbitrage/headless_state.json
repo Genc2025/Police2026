@@ -1,16 +1,16 @@
 {
-  "version": 1,
   "balance": 100.0,
-  "history": [],
-  "updated_at": null,
-  "run_started_at": null,
-  "run_status": "idle",
-  "cycles_available": 0,
-  "quote_updates": 0,
-  "signals": 0,
-  "executed": 0,
-  "cancelled": 0,
   "best_cycle": null,
   "best_net": null,
-  "last_error": null
+  "cancelled": 0,
+  "cycles_available": 32,
+  "executed": 0,
+  "history": [],
+  "last_error": null,
+  "quote_updates": 0,
+  "run_started_at": "2026-08-26T01:05:09.254135+00:00",
+  "run_status": "running",
+  "signals": 0,
+  "updated_at": "2026-08-26T01:05:11.506409+00:00",
+  "version": 1
 }
