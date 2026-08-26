@@ -2,6 +2,8 @@ name: Deploy Police2026
 on:
   push:
     branches: ["claude/html-demo-rn-app-jz85o7"]
+    paths-ignore:
+      - "crypto-arbitrage/headless_state.json"
   workflow_dispatch:
 permissions:
   contents: read
@@ -86,6 +88,50 @@ jobs:
               '<strong>Important:</strong> this is a much stricter paper test,',
               '<strong>Cost model:</strong> no fixed slippage or arbitrary safety haircut is charged because the simulator checks top-of-book quantity and re-quotes after 350 ms. Binance paper fee is 0.10% per executed leg. <strong>Important:</strong> this is still a paper test,'
           )
+          p.write_text(s)
+          PY
+      - name: Use persistent GitHub runner state for wallet and history
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('dist/crypto/index.html')
+          s = p.read_text()
+          s = s.replace('Reset to 100 USDT', 'Refresh server state')
+          s = s.replace(
+              "feedSeen.set('binance',now());maybeSignal()}",
+              "feedSeen.set('binance',now())}"
+          )
+          s = s.replace(
+              "$('reset').addEventListener('click',()=>{state={balance:100,history:[]};pending=null;lastSignal.clear();save();render()});",
+              "$('reset').addEventListener('click',()=>{sessionStorage.removeItem('arb-headless-stamp');location.reload()});"
+          )
+          s = s.replace(
+              'Also, this browser test runs only while this page is open; GitHub Pages cannot keep the trading engine running after Safari closes.',
+              'The wallet and execution history are produced by the scheduled GitHub Actions headless runner. This page may be closed; opening or refreshing it does not reset the persistent paper state.'
+          )
+          sync = r'''<script>
+          (async()=>{
+            const KEY='arb-strict-v2';
+            const STAMP='arb-headless-stamp';
+            const URL='https://raw.githubusercontent.com/Genc2025/Police2026/claude/html-demo-rn-app-jz85o7/crypto-arbitrage/headless_state.json';
+            try{
+              const r=await fetch(URL+'?t='+Date.now(),{cache:'no-store'});
+              if(!r.ok)return;
+              const d=await r.json();
+              if(!Number.isFinite(+d.balance)||!Array.isArray(d.history))return;
+              const payload={balance:+d.balance,history:d.history};
+              const next=JSON.stringify(payload);
+              const old=localStorage.getItem(KEY);
+              localStorage.setItem(KEY,next);
+              const stamp=String(d.updated_at||'');
+              if(sessionStorage.getItem(STAMP)!==stamp){
+                sessionStorage.setItem(STAMP,stamp);
+                if(old!==next) location.reload();
+              }
+            }catch(e){}
+          })();
+          </script>'''
+          s = s.replace('</head>', sync + '\n</head>')
           p.write_text(s)
           PY
       - uses: actions/configure-pages@v5
