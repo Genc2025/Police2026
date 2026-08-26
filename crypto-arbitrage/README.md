@@ -1,27 +1,33 @@
-# Crypto Arbitrage Scanner V1
+# Crypto Arbitrage Scanner
 
-Read-only cross-exchange scanner using public market data. **No API keys, deposits, real orders, withdrawals, or leverage.**
+Read-only arbitrage research system using public market data. **No API keys, deposits, real orders, withdrawals, or leverage.**
 
-## Current scope
+## Current default
 
+- Quote/capital asset: **USDT**
+- Paper capital: **100 USDT**
+- Configured assets: BTC, ETH, SOL, XRP, ADA, LINK, DOGE, AVAX against USDT
 - Exchanges: Binance, Kraken, Coinbase Exchange, Bitstamp
-- Pairs: BTC/EUR, ETH/EUR
-- Uses executable top-of-book bid/ask **and available quantity**, not last-trade price
-- Requires the full configured paper notional to fit on both legs
-- Applies configurable taker-fee assumptions, slippage allowance, and safety buffer
-- Saves quote snapshots and best routes to SQLite
-- Reports simulated opportunities only when estimated net profit reaches the configured threshold
-- Unit tests + GitHub Actions live public-market smoke test
+- Live market discovery filters unsupported pairs per venue before scanning
+- Cross-exchange REST order-book scanner
+- Realtime WebSocket scanner for Binance, Kraken and Coinbase
+- Binance triangular-arbitrage paper engine starting and ending in USDT
+- SQLite evidence journal and combined report
+- Unit tests + GitHub Actions live smoke tests
+
+EUR is no longer required. The code is quote-asset aware, so EUR can still be used later through configuration if desired.
+
+## Cost and liquidity model
+
+The paper engines use executable best bid/ask and observed top-of-book quantity rather than last-trade price. A route is rejected when the full configured notional does not fit available top-of-book liquidity.
+
+The default paper model also subtracts configurable taker-fee assumptions, per-leg slippage allowance, a safety buffer, quote-latency limits, and snapshot-skew limits. These assumptions are intentionally conservative and are not a guarantee of real execution quality.
 
 ## Important capital note
 
-`virtual_capital_eur` is the **paper notional for one arbitrage route**, not a claim that EUR 100 total portfolio can execute EUR 100 simultaneously on every venue.
+`virtual_capital` is the paper notional used to evaluate one route. Cross-exchange arbitrage still requires inventory to be pre-funded on the relevant venues in a real implementation. A 100 USDT paper route therefore does **not** mean a 100 USDT total real portfolio could necessarily execute both legs simultaneously.
 
-Real cross-exchange arbitrage normally requires pre-funded inventory on both sides (for example EUR on the buy venue and the base crypto on the sell venue). If the total real portfolio is only EUR 100, the eventual live trade notional would normally be smaller and split across venues. V1 intentionally does not model deposits, transfers, rebalancing, or real balances yet.
-
-## Safety
-
-V1 cannot place trades and does not accept exchange credentials. A positive paper result is not guaranteed live profit: quotes can move before execution, fees differ by account tier, partial fills can occur, and exchange/API latency matters.
+Triangular arbitrage is different because all three legs occur on one exchange and the same starting inventory can rotate through the cycle; execution, fee, minimum-order, precision, and partial-fill risks still remain.
 
 ## Run
 
@@ -30,23 +36,39 @@ cd crypto-arbitrage
 python -m venv .venv
 source .venv/bin/activate  # Windows: .venv\\Scripts\\activate
 pip install -r requirements.txt
-python scanner.py
 ```
 
-One live snapshot without writing SQLite:
+Discover live USDT support:
 
 ```bash
-python scanner.py --once --no-db
+python market_probe.py --quote USDT --assets BTC ETH SOL XRP ADA LINK DOGE AVAX
 ```
 
-One live snapshot with the paper journal:
+Realtime WebSocket paper scan:
 
 ```bash
-python scanner.py --once
+python realtime.py --seconds 30
+```
+
+Cross-exchange REST paper scan:
+
+```bash
+python scanner.py --cycles 10
+```
+
+Binance triangular paper scan:
+
+```bash
+python triangular.py --cycles 10
+```
+
+Combined report:
+
+```bash
 python report.py
 ```
 
-Run unit tests:
+Unit tests:
 
 ```bash
 pytest -q tests
@@ -54,15 +76,17 @@ pytest -q tests
 
 ## Configuration
 
-Copy `config.example.json` to `config.json` to change paper notional, fee assumptions, buffer, pairs, scan interval, SQLite path, or minimum paper profit.
+Copy `config.example.json` to `config.json` to change `capital_asset`, `virtual_capital`, fee assumptions, slippage, safety buffer, pairs, scan interval, SQLite path, or minimum paper profit.
 
-The fee values in the example config are **paper-testing assumptions**. Before any real-trading version, they must be replaced with the actual fee tier for each funded account and verified again.
+The fee values in the example config are **paper-testing assumptions**, not verified personal account fee tiers. Before any live-trading version, actual account-specific fees and exchange trading rules must be fetched and validated.
 
-## Next engineering gates before live trading
+## Gates before real money
 
-1. Sustained paper run and measured opportunity frequency.
-2. WebSocket market-data adapters with stale-quote/latency rejection.
-3. Multi-level order-book fill simulation and rebalancing costs.
-4. Per-exchange real fee-tier discovery after account connection.
-5. Paper execution state machine for simultaneous legs and partial-fill handling.
-6. Only after those gates: optional trade-only API integration with withdrawals disabled.
+1. Sustained realtime paper evidence over materially longer periods.
+2. Multi-level order-book fill simulation rather than only top-of-book capacity.
+3. Exchange trading filters: min notional, quantity step, price tick and asset precision.
+4. Actual account fee tiers and fee-token effects where applicable.
+5. Inventory/rebalancing and transfer-cost model for cross-exchange routes.
+6. Paper execution state machine for simultaneous legs, partial fills and unwind risk.
+7. Kill switches, maximum-loss controls, stale-feed handling and exchange disconnect handling.
+8. Only after those gates: optional trade-only API integration with withdrawals disabled.
