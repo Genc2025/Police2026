@@ -2,14 +2,79 @@
   "balance": 100.0,
   "closed": 0,
   "entry_latency_ms": 120,
+  "equity": 100.0,
   "exit_latency_ms": 100,
   "history": [],
   "initial_balance": 100.0,
   "last_error": null,
+  "latest": {
+    "BTCUSDT": {
+      "confidence": 0.06513805412572174,
+      "funding": null,
+      "mid": 78917.95,
+      "predicted_edge_pct": 0.0008885600174560743,
+      "regime": "mixed",
+      "score": 0.04701375753735843,
+      "spread_pct": 0.00012671388449119722,
+      "time": "2026-08-26T01:36:21.275953+00:00"
+    },
+    "ETHUSDT": {
+      "confidence": 0.37122198825661623,
+      "funding": null,
+      "mid": 2459.835,
+      "predicted_edge_pct": 0.0059370143872584085,
+      "regime": "mixed",
+      "score": 0.3141277453575878,
+      "spread_pct": 0.00040653133239498904,
+      "time": "2026-08-26T01:36:20.836392+00:00"
+    },
+    "SOLUSDT": {
+      "confidence": 0.5743054187059339,
+      "funding": null,
+      "mid": 97.17500000000001,
+      "predicted_edge_pct": 0.007889425108408971,
+      "regime": "mixed",
+      "score": 0.41742989991581864,
+      "spread_pct": 0.01029071263185502,
+      "time": "2026-08-26T01:36:21.277449+00:00"
+    }
+  },
   "losses": 0,
   "math_model": "online_ensemble_microprice_flow_regime_v1",
   "max_concurrent_positions": 3,
   "max_hold_seconds": 20.0,
+  "model_weights": {
+    "BTCUSDT": {
+      "basis": -0.3,
+      "book": 0.95,
+      "flow1": 1.15,
+      "flow5": 0.9,
+      "micro": 0.9,
+      "mom05": 0.8,
+      "mom2": 1.0,
+      "mom5": 0.75
+    },
+    "ETHUSDT": {
+      "basis": -0.3,
+      "book": 0.95,
+      "flow1": 1.15,
+      "flow5": 0.9,
+      "micro": 0.9,
+      "mom05": 0.8,
+      "mom2": 1.0,
+      "mom5": 0.75
+    },
+    "SOLUSDT": {
+      "basis": -0.3,
+      "book": 0.95,
+      "flow1": 1.15,
+      "flow5": 0.9,
+      "micro": 0.9,
+      "mom05": 0.8,
+      "mom2": 1.0,
+      "mom5": 0.75
+    }
+  },
   "opened": 0,
   "paper_leverage": 1.0,
   "positions": {},
@@ -23,7 +88,8 @@
     "SOLUSDT"
   ],
   "taker_fee_assumption": 0.0005,
-  "updated_at": "2026-08-26T01:34:20.018824+00:00",
+  "unrealized_pnl": 0.0,
+  "updated_at": "2026-08-26T01:36:21.287078+00:00",
   "version": 1,
   "wins": 0
 }
