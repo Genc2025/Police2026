@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="color-scheme" content="dark" />
+<title>Arbitrage Live Paper</title>
+<style>
+:root{--bg:#071018;--panel:#0d1924;--panel2:#111f2c;--line:#213345;--text:#ecf4fa;--muted:#8fa5b7;--green:#44d18d;--red:#ff6f7d;--yellow:#f2c94c;--blue:#56a8ff}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}.wrap{max-width:1200px;margin:0 auto;padding:18px}.top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}.title{font-size:25px;font-weight:750}.sub{color:var(--muted);font-size:13px;margin-top:5px}.badge{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:999px;padding:8px 11px;background:var(--panel)}.dot{width:8px;height:8px;border-radius:50%;background:var(--yellow)}.dot.ok{background:var(--green)}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:16px 0}.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}.k{font-size:12px;color:var(--muted)}.v{font-size:22px;font-weight:750;margin-top:6px}.positive{color:var(--green)}.negative{color:var(--red)}.section{margin-top:18px}.section h2{font-size:16px;margin:0 0 9px}.tablebox{border:1px solid var(--line);border-radius:14px;overflow:auto;background:var(--panel)}table{border-collapse:collapse;width:100%;min-width:870px}th,td{padding:11px 12px;text-align:left;border-bottom:1px solid var(--line);font-size:13px;white-space:nowrap}th{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;background:var(--panel2);position:sticky;top:0}tr:last-child td{border-bottom:none}.status{font-size:11px;font-weight:700;padding:4px 8px;border-radius:999px;border:1px solid var(--line)}.trade{color:var(--green)}.skip{color:var(--muted)}.controls{display:flex;gap:8px;flex-wrap:wrap}.btn{appearance:none;border:1px solid var(--line);color:var(--text);background:var(--panel);border-radius:10px;padding:9px 12px;font-size:13px}.btn:active{transform:translateY(1px)}.note{margin-top:14px;padding:12px 13px;border:1px solid var(--line);border-radius:12px;color:var(--muted);font-size:12px;line-height:1.45}.sources{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.source{font-size:11px;padding:5px 8px;border-radius:7px;background:var(--panel2);border:1px solid var(--line)}@media(max-width:760px){.wrap{padding:13px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.v{font-size:19px}.title{font-size:21px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div><div class="title">Crypto Arbitrage — Live Paper</div><div class="sub">100 USDT virtual • public market data • no API keys • no real orders</div></div>
+    <div class="controls"><div class="badge"><span id="liveDot" class="dot"></span><span id="liveText">Connecting…</span></div><button id="clear" class="btn" type="button">Clear paper history</button></div>
+  </div>
+
+  <div class="grid">
+    <div class="card"><div class="k">Paper balance</div><div id="balance" class="v">100.0000 USDT</div></div>
+    <div class="card"><div class="k">Net P&amp;L</div><div id="pnl" class="v">+0.0000 USDT</div></div>
+    <div class="card"><div class="k">Paper trades</div><div id="tradeCount" class="v">0</div></div>
+    <div class="card"><div class="k">Feeds online</div><div id="feeds" class="v">0 / 4</div></div>
+  </div>
+
+  <div class="section"><h2>Best route now</h2><div class="tablebox"><table><thead><tr><th>Pair</th><th>Buy at</th><th>Ask</th><th>Sell at</th><th>Bid</th><th>Gross</th><th>Est. costs</th><th>Net / 100</th><th>Status</th></tr></thead><tbody id="routes"></tbody></table></div></div>
+
+  <div class="section"><h2>Paper buy / sell history</h2><div class="tablebox"><table><thead><tr><th>Time</th><th>Pair</th><th>Buy exchange</th><th>Buy</th><th>Sell exchange</th><th>Sell</th><th>Gross</th><th>Net P&amp;L</th></tr></thead><tbody id="history"></tbody></table></div></div>
+
+  <div class="section"><h2>Live quotes</h2><div class="tablebox"><table><thead><tr><th>Pair</th><th>Exchange</th><th>Bid</th><th>Ask</th><th>Age</th></tr></thead><tbody id="quotes"></tbody></table></div></div>
+
+  <div class="sources"><span class="source">Binance WS</span><span class="source">Kraken WS</span><span class="source">Coinbase WS</span><span class="source">Bitstamp REST (best effort)</span></div>
+  <div class="note"><strong>PAPER ONLY.</strong> A row marked TRADE is a simulated simultaneous buy/sell at observed top-of-book prices. Fee assumptions are conservative placeholders: Binance 0.10%, Kraken 0.40%, Coinbase 0.60%, Bitstamp 0.30%, plus 0.05% slippage per leg and 0.05% safety buffer. This page cannot place orders or withdraw funds.</div>
+</div>
+<script>
+(() => {
+  const PAIRS=['BTC/USDT','ETH/USDT','SOL/USDT','XRP/USDT','ADA/USDT','LINK/USDT','DOGE/USDT','AVAX/USDT'];
+  const FEES={binance:.001,kraken:.004,coinbase:.006,bitstamp:.003};
+  const SLIP=.0005, SAFETY=.0005, CAPITAL=100, MIN_PROFIT=.10, MAX_AGE=1800;
+  const quotes=new Map(), feedSeen=new Map(), cooldown=new Map();
+  let history=[];
+  try{history=JSON.parse(localStorage.getItem('arb-paper-history-v1')||'[]');if(!Array.isArray(history))history=[]}catch{history=[]}
+  const $=id=>document.getElementById(id);
+  const key=(ex,pair)=>ex+'|'+pair;
+  const now=()=>Date.now();
+  const fmt=(n,p=6)=>Number.isFinite(n)?n.toLocaleString(undefined,{maximumFractionDigits:p}):'—';
+  function put(ex,pair,bid,bidQty,ask,askQty){bid=+bid;ask=+ask;bidQty=+bidQty;askQty=+askQty;if(!(bid>0&&ask>0&&bidQty>0&&askQty>0))return;quotes.set(key(ex,pair),{ex,pair,bid,bidQty,ask,askQty,t:now()});feedSeen.set(ex,now());evaluate(pair)}
+  function fresh(pair){return [...quotes.values()].filter(q=>q.pair===pair&&now()-q.t<=MAX_AGE)}
+  function best(pair){const qs=fresh(pair);let out=null;for(const b of qs)for(const s of qs){if(b.ex===s.ex)continue;const buyEff=b.ask*(1+FEES[b.ex]+SLIP);const qty=CAPITAL/buyEff;if(qty>b.askQty||qty>s.bidQty)continue;const gross=((s.bid/b.ask)-1)*100;const netEnd=qty*s.bid*(1-FEES[s.ex]-SLIP);const net=netEnd-CAPITAL-(CAPITAL*SAFETY);const cost=gross-(net/CAPITAL*100);const c={pair,buy:b,sell:s,gross,cost,net};if(!out||c.net>out.net)out=c}return out}
+  function evaluate(pair){const r=best(pair);if(!r||r.net<MIN_PROFIT)return;const id=pair+'|'+r.buy.ex+'|'+r.sell.ex;const last=cooldown.get(id)||0;if(now()-last<10000)return;cooldown.set(id,now());history.unshift({time:new Date().toISOString(),pair,buyEx:r.buy.ex,buy:r.buy.ask,sellEx:r.sell.ex,sell:r.sell.bid,gross:r.gross,net:r.net});history=history.slice(0,200);try{localStorage.setItem('arb-paper-history-v1',JSON.stringify(history))}catch{}render()}
+  function render(){
+    const pnl=history.reduce((a,x)=>a+(+x.net||0),0);$('balance').textContent=(CAPITAL+pnl).toFixed(4)+' USDT';$('pnl').textContent=(pnl>=0?'+':'')+pnl.toFixed(4)+' USDT';$('pnl').className='v '+(pnl>0?'positive':pnl<0?'negative':'');$('tradeCount').textContent=history.length;
+    const online=['binance','kraken','coinbase','bitstamp'].filter(x=>now()-(feedSeen.get(x)||0)<10000).length;$('feeds').textContent=online+' / 4';$('liveDot').className='dot '+(online>=2?'ok':'');$('liveText').textContent=online>=2?'Live':'Connecting…';
+    $('routes').innerHTML=PAIRS.map(pair=>{const r=best(pair);if(!r)return `<tr><td>${pair}</td><td colspan="8" style="color:var(--muted)">Waiting for comparable fresh quotes…</td></tr>`;const ok=r.net>=MIN_PROFIT;return `<tr><td><strong>${pair}</strong></td><td>${r.buy.ex}</td><td>${fmt(r.buy.ask,8)}</td><td>${r.sell.ex}</td><td>${fmt(r.sell.bid,8)}</td><td>${r.gross>=0?'+':''}${r.gross.toFixed(4)}%</td><td>${r.cost.toFixed(4)}%</td><td class="${r.net>=0?'positive':'negative'}">${r.net>=0?'+':''}${r.net.toFixed(4)} USDT</td><td><span class="status ${ok?'trade':'skip'}">${ok?'TRADE':'SKIP'}</span></td></tr>`}).join('');
+    $('history').innerHTML=history.length?history.map(x=>`<tr><td>${new Date(x.time).toLocaleTimeString()}</td><td><strong>${x.pair}</strong></td><td>${x.buyEx}</td><td>${fmt(+x.buy,8)}</td><td>${x.sellEx}</td><td>${fmt(+x.sell,8)}</td><td>+${(+x.gross).toFixed(4)}%</td><td class="${+x.net>=0?'positive':'negative'}">${+x.net>=0?'+':''}${(+x.net).toFixed(4)} USDT</td></tr>`).join(''):`<tr><td colspan="8" style="color:var(--muted)">No qualifying paper trade yet.</td></tr>`;
+    const rows=[...quotes.values()].filter(q=>now()-q.t<10000).sort((a,b)=>a.pair.localeCompare(b.pair)||a.ex.localeCompare(b.ex));$('quotes').innerHTML=rows.map(q=>`<tr><td>${q.pair}</td><td>${q.ex}</td><td>${fmt(q.bid,8)}</td><td>${fmt(q.ask,8)}</td><td>${Math.round(now()-q.t)} ms</td></tr>`).join('');
+  }
+  $('clear').addEventListener('click',()=>{history=[];try{localStorage.removeItem('arb-paper-history-v1')}catch{}render()});
+
+  const binMap=Object.fromEntries(PAIRS.map(p=>[p.replace('/','').toLowerCase(),p]));
+  function connectBinance(){const streams=Object.keys(binMap).map(s=>s+'@bookTicker').join('/');const ws=new WebSocket('wss://data-stream.binance.vision/stream?streams='+streams);ws.onmessage=e=>{try{const m=JSON.parse(e.data),d=m.data||m,p=binMap[String(d.s||'').toLowerCase()];if(p)put('binance',p,d.b,d.B,d.a,d.A)}catch{}};ws.onclose=()=>setTimeout(connectBinance,1500);ws.onerror=()=>ws.close()}
+  const krPairs=['ETH/USDT','SOL/USDT','XRP/USDT','ADA/USDT','LINK/USDT','AVAX/USDT'];
+  function connectKraken(){const ws=new WebSocket('wss://ws.kraken.com/v2');ws.onopen=()=>ws.send(JSON.stringify({method:'subscribe',params:{channel:'ticker',symbol:krPairs,event_trigger:'bbo',snapshot:true}}));ws.onmessage=e=>{try{const m=JSON.parse(e.data);if(m.channel==='ticker'&&Array.isArray(m.data))for(const d of m.data)if(krPairs.includes(d.symbol))put('kraken',d.symbol,d.bid,d.bid_qty,d.ask,d.ask_qty)}catch{}};ws.onclose=()=>setTimeout(connectKraken,1500);ws.onerror=()=>ws.close()}
+  const cbProducts=PAIRS.map(p=>p.replace('/','-')),cbMap=Object.fromEntries(cbProducts.map(x=>[x,x.replace('-','/')]));
+  function connectCoinbase(){const ws=new WebSocket('wss://ws-feed.exchange.coinbase.com');ws.onopen=()=>ws.send(JSON.stringify({type:'subscribe',product_ids:cbProducts,channels:['ticker']}));ws.onmessage=e=>{try{const m=JSON.parse(e.data),p=cbMap[m.product_id];if(m.type==='ticker'&&p&&m.best_bid&&m.best_ask)put('coinbase',p,m.best_bid,m.best_bid_size,m.best_ask,m.best_ask_size)}catch{}};ws.onclose=()=>setTimeout(connectCoinbase,1500);ws.onerror=()=>ws.close()}
+  const bitPairs={'BTC/USDT':'btcusdt','ETH/USDT':'ethusdt','XRP/USDT':'xrpusdt'};
+  async function pollBitstamp(){for(const [pair,symbol] of Object.entries(bitPairs)){try{const r=await fetch(`https://www.bitstamp.net/api/v2/order_book/${symbol}/`,{cache:'no-store'});if(!r.ok)continue;const d=await r.json(),b=d.bids?.[0],a=d.asks?.[0];if(b&&a)put('bitstamp',pair,b[0],b[1],a[0],a[1])}catch{}}setTimeout(pollBitstamp,3000)}
+  connectBinance();connectKraken();connectCoinbase();pollBitstamp();setInterval(render,1000);render();
+})();
+</script>
+</body>
+</html>
