@@ -31,10 +31,13 @@ jobs:
       - name: Unit tests
         run: pytest -q crypto-arbitrage/tests
 
-      - name: Live public-market paper sample
+      - name: Cross-exchange live paper sample
         run: python crypto-arbitrage/scanner.py --cycles 10
 
-      - name: Paper report
+      - name: Binance triangular live paper sample
+        run: python crypto-arbitrage/triangular.py --cycles 10
+
+      - name: Combined paper report
         run: python crypto-arbitrage/report.py | tee crypto-arbitrage/paper-report.txt
 
       - name: Upload paper evidence
