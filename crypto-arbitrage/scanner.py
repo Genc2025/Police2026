@@ -27,6 +27,7 @@ class Quote:
     ask: float
     ask_qty: float
     observed_at: str
+    latency_ms: float
 
 
 @dataclass(frozen=True)
@@ -45,6 +46,8 @@ class Opportunity:
     net_profit_pct: float
     net_profit_eur: float
     observed_at: str
+    max_leg_latency_ms: float
+    snapshot_skew_ms: float
 
 
 SYMBOLS = {
@@ -67,6 +70,14 @@ def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="milliseconds")
 
 
+def elapsed_ms(started: float) -> float:
+    return (time.perf_counter() - started) * 1000.0
+
+
+def timestamp_ms(value: str) -> float:
+    return datetime.fromisoformat(value).timestamp() * 1000.0
+
+
 async def fetch_json(client: httpx.AsyncClient, url: str) -> Any:
     response = await client.get(url, timeout=8.0, headers={"Cache-Control": "no-cache"})
     response.raise_for_status()
@@ -75,49 +86,57 @@ async def fetch_json(client: httpx.AsyncClient, url: str) -> Any:
 
 async def binance_quote(client: httpx.AsyncClient, pair: str) -> Quote:
     symbol = SYMBOLS[pair]["binance"]
+    started = time.perf_counter()
     data = await fetch_json(
         client,
-        f"https://api.binance.com/api/v3/depth?symbol={symbol}&limit=5",
+        f"https://data-api.binance.vision/api/v3/depth?symbol={symbol}&limit=5",
     )
+    latency = elapsed_ms(started)
     bid = data["bids"][0]
     ask = data["asks"][0]
-    return Quote("binance", pair, float(bid[0]), float(bid[1]), float(ask[0]), float(ask[1]), utc_now())
+    return Quote("binance", pair, float(bid[0]), float(bid[1]), float(ask[0]), float(ask[1]), utc_now(), latency)
 
 
 async def kraken_quote(client: httpx.AsyncClient, pair: str) -> Quote:
     symbol = SYMBOLS[pair]["kraken"]
+    started = time.perf_counter()
     data = await fetch_json(
         client,
         f"https://api.kraken.com/0/public/Depth?pair={symbol}&count=5",
     )
+    latency = elapsed_ms(started)
     if data.get("error"):
         raise RuntimeError(f"Kraken error: {data['error']}")
     payload = next(iter(data["result"].values()))
     bid = payload["bids"][0]
     ask = payload["asks"][0]
-    return Quote("kraken", pair, float(bid[0]), float(bid[1]), float(ask[0]), float(ask[1]), utc_now())
+    return Quote("kraken", pair, float(bid[0]), float(bid[1]), float(ask[0]), float(ask[1]), utc_now(), latency)
 
 
 async def coinbase_quote(client: httpx.AsyncClient, pair: str) -> Quote:
     product = SYMBOLS[pair]["coinbase"]
+    started = time.perf_counter()
     data = await fetch_json(
         client,
         f"https://api.exchange.coinbase.com/products/{product}/book?level=1",
     )
+    latency = elapsed_ms(started)
     bid = data["bids"][0]
     ask = data["asks"][0]
-    return Quote("coinbase", pair, float(bid[0]), float(bid[1]), float(ask[0]), float(ask[1]), utc_now())
+    return Quote("coinbase", pair, float(bid[0]), float(bid[1]), float(ask[0]), float(ask[1]), utc_now(), latency)
 
 
 async def bitstamp_quote(client: httpx.AsyncClient, pair: str) -> Quote:
     symbol = SYMBOLS[pair]["bitstamp"]
+    started = time.perf_counter()
     data = await fetch_json(
         client,
         f"https://www.bitstamp.net/api/v2/order_book/{symbol}/",
     )
+    latency = elapsed_ms(started)
     bid = data["bids"][0]
     ask = data["asks"][0]
-    return Quote("bitstamp", pair, float(bid[0]), float(bid[1]), float(ask[0]), float(ask[1]), utc_now())
+    return Quote("bitstamp", pair, float(bid[0]), float(bid[1]), float(ask[0]), float(ask[1]), utc_now(), latency)
 
 
 FETCHERS = {
@@ -152,6 +171,10 @@ def validate_config(config: dict[str, Any]) -> None:
         raise ValueError("virtual_capital_eur must be > 0")
     if float(config["scan_interval_seconds"]) < 1.0:
         raise ValueError("scan_interval_seconds must be >= 1.0")
+    if float(config.get("max_quote_latency_ms", 1500.0)) <= 0:
+        raise ValueError("max_quote_latency_ms must be > 0")
+    if float(config.get("max_snapshot_skew_ms", 1000.0)) <= 0:
+        raise ValueError("max_snapshot_skew_ms must be > 0")
     for pair in config["pairs"]:
         if pair not in SYMBOLS:
             raise ValueError(f"Unsupported pair: {pair}")
@@ -166,6 +189,8 @@ def evaluate(quotes: Iterable[Quote], config: dict[str, Any]) -> Opportunity | N
     fees = {name: float(value) / 100.0 for name, value in config["fees_pct"].items()}
     slip = float(config["slippage_pct_each_leg"]) / 100.0
     safety = float(config["safety_buffer_pct"]) / 100.0
+    max_latency = float(config.get("max_quote_latency_ms", 1500.0))
+    max_skew = float(config.get("max_snapshot_skew_ms", 1000.0))
 
     best: Opportunity | None = None
 
@@ -176,6 +201,13 @@ def evaluate(quotes: Iterable[Quote], config: dict[str, Any]) -> Opportunity | N
             if buy.ask <= 0 or sell.bid <= 0 or buy.ask_qty <= 0 or sell.bid_qty <= 0:
                 continue
 
+            leg_latency = max(buy.latency_ms, sell.latency_ms)
+            if leg_latency > max_latency:
+                continue
+            skew_ms = abs(timestamp_ms(buy.observed_at) - timestamp_ms(sell.observed_at))
+            if skew_ms > max_skew:
+                continue
+
             buy_fee = fees[buy.exchange]
             sell_fee = fees[sell.exchange]
 
@@ -184,7 +216,7 @@ def evaluate(quotes: Iterable[Quote], config: dict[str, Any]) -> Opportunity | N
             effective_buy_price = buy.ask * (1.0 + buy_fee + slip)
             base_qty = capital / effective_buy_price
 
-            # Require the full EUR 100 paper order to fit at the observed top-of-book on BOTH legs.
+            # Require the full configured paper order to fit at top-of-book on BOTH legs.
             if base_qty > buy.ask_qty or base_qty > sell.bid_qty:
                 continue
 
@@ -211,6 +243,8 @@ def evaluate(quotes: Iterable[Quote], config: dict[str, Any]) -> Opportunity | N
                 net_profit_pct=net_profit_pct,
                 net_profit_eur=net_profit_eur,
                 observed_at=max(buy.observed_at, sell.observed_at),
+                max_leg_latency_ms=leg_latency,
+                snapshot_skew_ms=skew_ms,
             )
             if best is None or candidate.net_profit_eur > best.net_profit_eur:
                 best = candidate
@@ -232,6 +266,12 @@ async def collect_pair(client: httpx.AsyncClient, pair: str) -> tuple[list[Quote
     return quotes, errors
 
 
+def ensure_column(connection: sqlite3.Connection, table: str, name: str, definition: str) -> None:
+    columns = {row[1] for row in connection.execute(f"PRAGMA table_info({table})")}
+    if name not in columns:
+        connection.execute(f"ALTER TABLE {table} ADD COLUMN {name} {definition}")
+
+
 def init_db(path: Path) -> sqlite3.Connection:
     connection = sqlite3.connect(path)
     connection.execute("PRAGMA journal_mode=WAL")
@@ -247,7 +287,8 @@ def init_db(path: Path) -> sqlite3.Connection:
             bid_qty REAL NOT NULL,
             ask REAL NOT NULL,
             ask_qty REAL NOT NULL,
-            observed_at TEXT NOT NULL
+            observed_at TEXT NOT NULL,
+            latency_ms REAL NOT NULL DEFAULT 0
         )
         """
     )
@@ -268,10 +309,15 @@ def init_db(path: Path) -> sqlite3.Connection:
             net_profit_pct REAL NOT NULL,
             net_profit_eur REAL NOT NULL,
             observed_at TEXT NOT NULL,
-            qualifies INTEGER NOT NULL
+            qualifies INTEGER NOT NULL,
+            max_leg_latency_ms REAL NOT NULL DEFAULT 0,
+            snapshot_skew_ms REAL NOT NULL DEFAULT 0
         )
         """
     )
+    ensure_column(connection, "quotes", "latency_ms", "REAL NOT NULL DEFAULT 0")
+    ensure_column(connection, "opportunities", "max_leg_latency_ms", "REAL NOT NULL DEFAULT 0")
+    ensure_column(connection, "opportunities", "snapshot_skew_ms", "REAL NOT NULL DEFAULT 0")
     connection.commit()
     return connection
 
@@ -287,8 +333,8 @@ def persist_scan(
         return
     connection.executemany(
         """
-        INSERT INTO quotes(scan_id, exchange, pair, bid, bid_qty, ask, ask_qty, observed_at)
-        VALUES (:scan_id, :exchange, :pair, :bid, :bid_qty, :ask, :ask_qty, :observed_at)
+        INSERT INTO quotes(scan_id, exchange, pair, bid, bid_qty, ask, ask_qty, observed_at, latency_ms)
+        VALUES (:scan_id, :exchange, :pair, :bid, :bid_qty, :ask, :ask_qty, :observed_at, :latency_ms)
         """,
         [{"scan_id": scan_id, **asdict(quote)} for quote in quotes],
     )
@@ -299,11 +345,13 @@ def persist_scan(
             INSERT INTO opportunities(
                 scan_id, pair, buy_exchange, buy_ask, sell_exchange, sell_bid,
                 capital_eur, base_qty, gross_spread_pct, estimated_cost_pct,
-                net_profit_pct, net_profit_eur, observed_at, qualifies
+                net_profit_pct, net_profit_eur, observed_at, qualifies,
+                max_leg_latency_ms, snapshot_skew_ms
             ) VALUES (
                 :scan_id, :pair, :buy_exchange, :buy_ask, :sell_exchange, :sell_bid,
                 :capital_eur, :base_qty, :gross_spread_pct, :estimated_cost_pct,
-                :net_profit_pct, :net_profit_eur, :observed_at, :qualifies
+                :net_profit_pct, :net_profit_eur, :observed_at, :qualifies,
+                :max_leg_latency_ms, :snapshot_skew_ms
             )
             """,
             {
@@ -317,14 +365,15 @@ def persist_scan(
 
 def print_result(opportunity: Opportunity | None, minimum: float, pair: str) -> None:
     if opportunity is None:
-        print(f"{pair:7} | NO COMPARABLE FULL-LIQUIDITY ROUTE")
+        print(f"{pair:7} | NO COMPARABLE FULL-LIQUIDITY/FRESH ROUTE")
         return
     status = "PAPER OPPORTUNITY" if opportunity.net_profit_eur >= minimum else "NO TRADE"
     print(
         f"{opportunity.pair:7} | BUY {opportunity.buy_exchange:9} {opportunity.buy_ask:.4f} | "
         f"SELL {opportunity.sell_exchange:9} {opportunity.sell_bid:.4f} | "
         f"gross {opportunity.gross_spread_pct:+.4f}% | costs {opportunity.estimated_cost_pct:.4f}% | "
-        f"net {opportunity.net_profit_pct:+.4f}% = EUR {opportunity.net_profit_eur:+.4f} | {status}"
+        f"net {opportunity.net_profit_pct:+.4f}% = EUR {opportunity.net_profit_eur:+.4f} | "
+        f"lat {opportunity.max_leg_latency_ms:.0f}ms skew {opportunity.snapshot_skew_ms:.0f}ms | {status}"
     )
 
 
@@ -350,7 +399,7 @@ async def scan_once(
     return len(successful_exchanges)
 
 
-async def run(config: dict[str, Any], once: bool, no_db: bool) -> int:
+async def run(config: dict[str, Any], cycles: int | None, no_db: bool) -> int:
     interval = float(config["scan_interval_seconds"])
     db_path = ROOT / str(config.get("sqlite_path", "paper_arbitrage.db"))
     connection = None if no_db else init_db(db_path)
@@ -362,35 +411,47 @@ async def run(config: dict[str, Any], once: bool, no_db: bool) -> int:
     print("No API keys. No orders. No withdrawals.\n")
 
     headers = {
-        "User-Agent": "Police2026-Crypto-Arbitrage-Scanner/1.1",
+        "User-Agent": "Police2026-Crypto-Arbitrage-Scanner/1.2",
         "Accept": "application/json",
     }
+    completed = 0
+    last_successful_exchanges = 0
     try:
         async with httpx.AsyncClient(headers=headers, follow_redirects=True) as client:
-            while True:
-                successful_exchanges = await scan_once(client, config, connection)
-                if once:
-                    return 0 if successful_exchanges >= 2 else 2
+            while cycles is None or completed < cycles:
+                last_successful_exchanges = await scan_once(client, config, connection)
+                completed += 1
+                if cycles is not None and completed >= cycles:
+                    break
                 print()
                 await asyncio.sleep(interval)
     finally:
         if connection is not None:
             connection.close()
 
+    return 0 if last_successful_exchanges >= 2 else 2
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Read-only cross-exchange arbitrage paper scanner")
     parser.add_argument("--once", action="store_true", help="Run one market snapshot and exit")
+    parser.add_argument("--cycles", type=int, help="Run N market-snapshot cycles and exit")
     parser.add_argument("--no-db", action="store_true", help="Do not write the SQLite paper journal")
     parser.add_argument("--config", type=Path, help="Path to a JSON config file")
-    return parser.parse_args()
+    args = parser.parse_args()
+    if args.once and args.cycles is not None:
+        parser.error("use either --once or --cycles, not both")
+    if args.cycles is not None and args.cycles < 1:
+        parser.error("--cycles must be >= 1")
+    return args
 
 
 def main() -> int:
     args = parse_args()
     config = load_config(args.config)
+    cycles = 1 if args.once else args.cycles
     try:
-        return asyncio.run(run(config, once=args.once, no_db=args.no_db))
+        return asyncio.run(run(config, cycles=cycles, no_db=args.no_db))
     except KeyboardInterrupt:
         print("\nStopped.")
         return 130
