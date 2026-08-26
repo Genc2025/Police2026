@@ -13,7 +13,7 @@
   "losses": 0,
   "math_model": "online_ensemble_microprice_flow_regime_v1",
   "max_concurrent_positions": 3,
-  "max_hold_seconds": 20.0,
+  "max_hold_seconds": 45.0,
   "model_weights": {
     "BTCUSDT": {
       "basis": -0.3,
@@ -49,7 +49,7 @@
   "opened": 0,
   "paper_leverage": 1.0,
   "positions": {},
-  "run_started_at": "2026-08-26T01:38:37.834028+00:00",
+  "run_started_at": "2026-08-26T01:39:05.550563+00:00",
   "run_status": "running",
   "signals": 0,
   "strategy": "adaptive_binance_futures_microstructure",
@@ -59,7 +59,7 @@
     "SOLUSDT"
   ],
   "taker_fee_assumption": 0.0005,
-  "updated_at": "2026-08-26T01:38:37.837768+00:00",
+  "updated_at": "2026-08-26T01:39:05.554080+00:00",
   "version": 1,
   "wins": 0
 }
