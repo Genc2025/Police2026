@@ -10,7 +10,7 @@
   "contrarian_wins": 4,
   "entry_latency_ms": 120,
   "entry_policy": "strict_plus_contrarian_v3",
-  "equity": 89.05263026665529,
+  "equity": 89.05781137088559,
   "exit_latency_ms": 100,
   "history": [
     {
@@ -8048,14 +8048,14 @@
       "time": "2026-08-26T05:10:09.845401+00:00"
     },
     "SOLUSDT": {
-      "confidence": 0.19499747068226098,
+      "confidence": 0.39226860259658447,
       "funding": null,
-      "mid": 96.495,
-      "predicted_edge_pct": 0.003832308509863483,
+      "mid": 96.475,
+      "predicted_edge_pct": 0.006147730131040128,
       "regime": "mixed",
-      "score": 0.20276764602452294,
-      "spread_pct": 0.010363231255510768,
-      "time": "2026-08-26T05:10:15.507118+00:00"
+      "score": -0.3252767265100597,
+      "spread_pct": 0.010365379632034327,
+      "time": "2026-08-26T05:10:26.795877+00:00"
     }
   },
   "losses": 592,
@@ -8186,8 +8186,8 @@
     "SOLUSDT"
   ],
   "taker_fee_assumption": 0.0005,
-  "unrealized_pnl": -0.05302850118810909,
-  "updated_at": "2026-08-26T05:10:15.546781+00:00",
+  "unrealized_pnl": -0.047847396957806154,
+  "updated_at": "2026-08-26T05:10:26.818750+00:00",
   "version": 1,
   "wins": 4
 }
