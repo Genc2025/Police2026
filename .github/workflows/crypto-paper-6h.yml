@@ -1,15 +1,7 @@
 name: Crypto Paper 6h
 
 on:
-  schedule:
-    - cron: '7 */6 * * *'
   workflow_dispatch:
-  push:
-    branches: ["claude/html-demo-rn-app-jz85o7"]
-    paths:
-      - "crypto-arbitrage/cross_exchange_runner.py"
-      - "crypto-arbitrage/cross_exchange_runner_v2.py"
-      - ".github/workflows/crypto-paper-6h.yml"
 
 permissions:
   contents: write
