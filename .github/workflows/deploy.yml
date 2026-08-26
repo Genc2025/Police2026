@@ -52,7 +52,7 @@ jobs:
           @media(max-width:760px){
             .wrap{padding:8px}.top{gap:7px}.title{font-size:18px}.sub{font-size:10.5px;line-height:1.3;margin-top:3px}
             .controls{width:100%;justify-content:space-between}.badge,.btn{padding:6px 8px;font-size:10.5px}
-            .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:9px 0}.card{padding:9px;border-radius:10px}.k{font-size:10px}.v{font-size:16px;margin-top:3px}
+            .grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px;margin:9px 0}.card{padding:9px;border-radius:10px}.k{font-size:10px}.v{font-size:16px;margin-top:3px}
             .section{margin-top:12px}.section h2{font-size:14px;margin-bottom:6px}.desc{display:none}.tablebox{border-radius:10px;overflow:hidden}
             table{min-width:0!important;width:100%;table-layout:fixed}th,td{padding:7px 5px;font-size:10.5px;white-space:normal;overflow-wrap:anywhere;line-height:1.25}th{font-size:9px;letter-spacing:.02em}.status{font-size:9px;padding:3px 5px}
             #triangles tr td:nth-child(2),#triangles tr td:nth-child(5),#triangles tr td:nth-child(6){display:none}
@@ -143,6 +143,46 @@ jobs:
           s = s.replace('<span id="liveText">Connecting…</span>', '<span id="liveText">Browser feeds connecting…</span>')
           s = s.replace("$('liveText').textContent=online>=2?'Live test running':'Connecting…';", "$('liveText').textContent=online>=2?'Browser feeds live':'Browser feeds connecting…';")
           s = s.replace('REAL live market data • 100 USDT virtual wallet • simulated execution • no API keys • no real money', 'GitHub runner works in background • browser connects only to display live quotes • 100 USDT paper wallet')
+          p.write_text(s)
+          PY
+      - name: Show 6h server cycle elapsed time
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('dist/crypto/index.html')
+          s = p.read_text()
+          target = '<div class="card"><div class="k">Feeds online</div><div id="feeds" class="v">0 / 4</div></div>'
+          replacement = target + '<div class="card"><div class="k">Server cycle • 5h40 active + 20m buffer</div><div id="runnerClock" class="v">--:-- / 06:00</div></div>'
+          if target not in s:
+              raise SystemExit('feeds card target not found')
+          s = s.replace(target, replacement, 1)
+          s = s.replace('grid-template-columns:repeat(4,minmax(0,1fr))', 'grid-template-columns:repeat(5,minmax(0,1fr))', 1)
+          clock = r'''<script>
+          (()=>{
+            const URL='https://raw.githubusercontent.com/Genc2025/Police2026/claude/html-demo-rn-app-jz85o7/crypto-arbitrage/headless_state.json';
+            let started=null,status='unknown';
+            const pad=n=>String(n).padStart(2,'0');
+            function paint(){
+              const el=document.getElementById('runnerClock'); if(!el)return;
+              if(!started){el.textContent='--:-- / 06:00';return;}
+              let sec=Math.max(0,Math.floor((Date.now()-started)/1000));
+              sec=Math.min(sec,6*3600);
+              const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60);
+              el.textContent=pad(h)+':'+pad(m)+' / 06:00';
+              el.className='v '+(status==='running'?'positive':'yellow');
+            }
+            async function load(){
+              try{
+                const r=await fetch(URL+'?clock='+Date.now(),{cache:'no-store'}); if(!r.ok)return;
+                const d=await r.json();
+                const t=Date.parse(d.run_started_at||''); if(Number.isFinite(t))started=t;
+                status=String(d.run_status||'unknown'); paint();
+              }catch(e){}
+            }
+            load(); setInterval(paint,1000); setInterval(load,60000);
+          })();
+          </script>'''
+          s = s.replace('</body>', clock + '\n</body>')
           p.write_text(s)
           PY
       - uses: actions/configure-pages@v5
