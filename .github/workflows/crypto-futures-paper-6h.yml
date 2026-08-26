@@ -8,6 +8,7 @@ on:
     branches: ["claude/html-demo-rn-app-jz85o7"]
     paths:
       - "crypto-arbitrage/futures_runner.py"
+      - "crypto-arbitrage/futures_entrypoint.py"
       - ".github/workflows/crypto-futures-paper-6h.yml"
 
 permissions:
@@ -32,7 +33,9 @@ jobs:
       - name: Install websocket client
         run: python -m pip install 'websockets>=14,<16'
       - name: Validate futures research engine
-        run: python -m py_compile crypto-arbitrage/futures_runner.py
+        run: |
+          python -m py_compile crypto-arbitrage/futures_runner.py
+          python -m py_compile crypto-arbitrage/futures_entrypoint.py
       - name: Configure state commits
         run: |
           git config user.name "github-actions[bot]"
@@ -52,4 +55,4 @@ jobs:
           FUTURES_EDGE_BUFFER: '0.00020'
           FUTURES_MAX_SPREAD: '0.00040'
           FUTURES_WARMUP_SECONDS: '15'
-        run: python crypto-arbitrage/futures_runner.py
+        run: python crypto-arbitrage/futures_entrypoint.py
