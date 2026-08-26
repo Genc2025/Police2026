@@ -1,20 +1,22 @@
 # Status
 
 - Branch: `crypto-arbitrage-v1`
-- Mode: V1 read-only cross-exchange paper scanner
+- Mode: read-only / paper trading only
 - Real trading: disabled
 - API keys: not used
-- Default paper trade notional: EUR 100
+- Default capital asset: USDT
+- Default paper trade notional: 100 USDT
+- Configured pairs: BTC/USDT, ETH/USDT, SOL/USDT, XRP/USDT, ADA/USDT, LINK/USDT, DOGE/USDT, AVAX/USDT
 - Exchanges: Binance, Kraken, Coinbase Exchange, Bitstamp
-- Pairs: BTC/EUR, ETH/EUR
-- Pricing: public L2/L1 order-book best bid/ask + quantity
-- Cost model: configured taker fees + per-leg slippage allowance + safety buffer
-- Liquidity gate: full paper notional must fit observed top-of-book on buy and sell legs
-- Persistence: SQLite quote + opportunity journal implemented
-- Reporting: `report.py` implemented
-- Tests: deterministic engine tests implemented
-- CI: GitHub Actions unit-test + live public-market smoke workflow implemented
+- Market discovery: live public metadata before scans
+- Cross-exchange: REST order-book engine with fees, slippage, safety buffer, liquidity, latency and snapshot-skew gates
+- Realtime: Binance + Kraken + Coinbase public WebSocket engine with stale-quote rejection
+- Triangular: Binance USDT three-leg paper engine
+- Persistence: `paper_arbitrage_usdt.db`
+- Reporting: combined cross-exchange + triangular report
+- Tests: deterministic scanner, realtime parser and triangular engine tests
+- CI: unit tests + live USDT discovery + realtime WebSocket smoke + REST paper sample + triangular sample + artifact
 
 ## Still blocked from real money
 
-Do not enable real trading yet. Remaining gates include sustained paper evidence, WebSocket/stale-quote controls, deeper fill simulation, actual account fee tiers, inventory/rebalancing model, and simultaneous-leg/partial-fill risk controls.
+Do not enable real trading yet. Remaining gates include sustained realtime paper evidence, multi-level order-book fill simulation, exchange min-notional/step/tick rules, actual account fee tiers, inventory/rebalancing costs, simultaneous-leg/partial-fill controls and hard kill switches.
