@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Adaptive Futures Paper Lab</title>
+<style>
+:root{--bg:#071018;--panel:#0d1924;--line:#213345;--text:#ecf4fa;--muted:#8fa5b7;--green:#44d18d;--red:#ff6f7d;--yellow:#f2c94c}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}.wrap{max-width:1100px;margin:auto;padding:14px}.top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}.title{font-size:24px;font-weight:780}.sub{color:var(--muted);font-size:12px;line-height:1.45;margin-top:4px}.pill{border:1px solid var(--line);border-radius:999px;padding:7px 10px;font-size:11px}.grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:14px 0}.card,.panel{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:11px}.k{font-size:10px;color:var(--muted);text-transform:uppercase}.v{font-size:19px;font-weight:760;margin-top:5px}.green{color:var(--green)}.red{color:var(--red)}.yellow{color:var(--yellow)}h2{font-size:15px;margin:15px 0 7px}.coins{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.coin{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:10px}.coin h3{margin:0 0 7px;font-size:14px}.row{display:flex;justify-content:space-between;gap:8px;font-size:11px;padding:3px 0}.row span:first-child{color:var(--muted)}.tablebox{border:1px solid var(--line);border-radius:12px;overflow:auto;background:var(--panel)}table{border-collapse:collapse;width:100%;min-width:760px}th,td{padding:8px 9px;border-bottom:1px solid var(--line);font-size:11px;text-align:left;white-space:nowrap}th{color:var(--muted);font-size:9px;text-transform:uppercase}.note{color:var(--muted);font-size:10px;line-height:1.5;margin-top:12px}.btn{color:var(--text);text-decoration:none;border:1px solid var(--line);border-radius:9px;padding:7px 9px;font-size:11px}@media(max-width:760px){.wrap{padding:8px}.title{font-size:19px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.coins{grid-template-columns:1fr}.card{padding:8px}.v{font-size:16px}h2{font-size:14px;margin-top:12px}.tablebox table{min-width:620px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><div><div class="title">Adaptive Futures Paper Lab</div><div class="sub">Binance USDⓈ-M • BTCUSDT / ETHUSDT / SOLUSDT • online microstructure ensemble • paper only • 1× total exposure</div></div><a class="btn" href="./">Main arbitrage</a></div>
+  <div class="grid">
+    <div class="card"><div class="k">Paper balance</div><div id="balance" class="v">—</div></div>
+    <div class="card"><div class="k">Equity</div><div id="equity" class="v">—</div></div>
+    <div class="card"><div class="k">Net P&L</div><div id="pnl" class="v">—</div></div>
+    <div class="card"><div class="k">Wins / losses</div><div id="wl" class="v">—</div></div>
+    <div class="card"><div class="k">Server cycle</div><div id="clock" class="v">—</div></div>
+  </div>
+  <h2>BTC / ETH / SOL live model state</h2>
+  <div id="coins" class="coins"></div>
+  <h2>Open paper positions</h2>
+  <div id="positions" class="panel">None</div>
+  <h2>Closed paper trades</h2>
+  <div class="tablebox"><table><thead><tr><th>Time</th><th>Coin</th><th>Side</th><th>Entry</th><th>Exit</th><th>Net</th><th>Held</th><th>Reason</th><th>Result</th></tr></thead><tbody id="history"></tbody></table></div>
+  <div class="note">This is a research simulator, not a profit guarantee. It uses public Binance Futures market data, simulated taker fills after latency, bid/ask spread and a fee assumption. It never sends a real order. The online model changes feature weights after each closed paper trade; a strategy is useful only if its out-of-sample net P&L remains positive after costs.</div>
+</div>
+<script>
+const URL='https://raw.githubusercontent.com/Genc2025/Police2026/claude/html-demo-rn-app-jz85o7/crypto-arbitrage/futures_state.json';
+let state=null;
+const $=id=>document.getElementById(id), num=(x,p=4)=>Number.isFinite(+x)?(+x).toFixed(p):'—';
+function cls(n){return +n>0?'green':+n<0?'red':''}
+function render(){
+ if(!state)return;
+ const bal=+state.balance||100, eq=Number.isFinite(+state.equity)?+state.equity:bal, pnl=eq-(+state.initial_balance||100);
+ $('balance').textContent=num(bal)+' USDT'; $('equity').textContent=num(eq)+' USDT'; $('pnl').textContent=(pnl>=0?'+':'')+num(pnl)+' USDT'; $('pnl').className='v '+cls(pnl);
+ $('wl').textContent=(state.wins||0)+' / '+(state.losses||0);
+ const latest=state.latest||{};
+ $('coins').innerHTML=['BTCUSDT','ETHUSDT','SOLUSDT'].map(s=>{const d=latest[s]||{};const score=+d.score||0, conf=+d.confidence||0, edge=+d.predicted_edge_pct||0;return `<div class="coin"><h3>${s}</h3><div class="row"><span>Score</span><b class="${cls(score)}">${score>=0?'+':''}${num(score,3)}</b></div><div class="row"><span>Confidence</span><b>${num(conf*100,1)}%</b></div><div class="row"><span>Pred. edge</span><b>${num(edge,4)}%</b></div><div class="row"><span>Spread</span><b>${num(d.spread_pct,4)}%</b></div><div class="row"><span>Regime</span><b>${d.regime||'—'}</b></div><div class="row"><span>Mid</span><b>${num(d.mid,4)}</b></div></div>`}).join('');
+ const ps=state.positions||{}; const keys=Object.keys(ps); $('positions').innerHTML=keys.length?keys.map(s=>{const p=ps[s];return `<div class="row"><span>${s} ${p.side}</span><b>entry ${num(p.entry_price,5)} • ${num(p.notional,2)} USDT</b></div>`}).join(''):'None';
+ const h=Array.isArray(state.history)?state.history:[]; $('history').innerHTML=h.length?h.slice(0,100).map(x=>`<tr><td>${new Date(x.time).toLocaleTimeString()}</td><td>${x.symbol}</td><td>${x.side}</td><td>${num(x.entry_price,5)}</td><td>${num(x.exit_price,5)}</td><td class="${cls(x.net_pnl)}">${+x.net_pnl>=0?'+':''}${num(x.net_pnl,4)}</td><td>${num(x.held_seconds,1)}s</td><td>${x.reason}</td><td>${x.status}</td></tr>`).join(''):'<tr><td colspan="9">No closed trades yet.</td></tr>';
+ paintClock();
+}
+function paintClock(){if(!state)return;const t=Date.parse(state.run_started_at||'');if(!Number.isFinite(t)){ $('clock').textContent='—';return;}const sec=Math.max(0,Math.min(21600,Math.floor((Date.now()-t)/1000)));const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;$('clock').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+' / 06:00';}
+async function load(){try{const r=await fetch(URL+'?t='+Date.now(),{cache:'no-store'});if(r.ok){state=await r.json();render()}}catch(e){}}
+load();setInterval(load,20000);setInterval(paintClock,1000);
+</script>
+</body></html>
