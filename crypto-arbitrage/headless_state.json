@@ -1,9 +1,17 @@
 {
   "balance": 100.0,
-  "best_cycle": null,
-  "best_net": null,
-  "cancelled": 0,
-  "evaluations": 0,
+  "best_cycle": "XRP/USDT binance\u2192coinbase",
+  "best_net": 0.14628606598441252,
+  "cancelled": 1,
+  "current_best": {
+    "buy": "binance",
+    "gross_spread_pct": 0.8516424533028033,
+    "net": 0.14628606598441252,
+    "pair": "XRP/USDT",
+    "sell": "coinbase",
+    "skew_ms": 721.1136540000069
+  },
+  "evaluations": 133,
   "executed": 0,
   "execution_delay_ms": 350,
   "fee_assumptions": {
@@ -12,7 +20,25 @@
     "coinbase": 0.006,
     "kraken": 0.004
   },
+  "feeds_online": {
+    "binance": true,
+    "bitstamp": true,
+    "coinbase": true,
+    "kraken": false
+  },
   "history": [
+    {
+      "balance": 100.0,
+      "buy_exchange": "binance",
+      "cycle": "XRP/USDT binance\u2192coinbase",
+      "fill": null,
+      "legs": "BUY binance | SELL coinbase",
+      "pair": "XRP/USDT",
+      "sell_exchange": "coinbase",
+      "signal": 0.031743169633287494,
+      "status": "CANCELLED",
+      "time": "2026-08-26T13:09:03.360032+00:00"
+    },
     {
       "balance": 100.0,
       "buy_exchange": "bitstamp",
@@ -28,6 +54,13 @@
   ],
   "inventory_model": "synthetic_prefunded_two_leg",
   "last_error": null,
+  "last_signal": {
+    "buy": "binance",
+    "expected_net": 0.031743169633287494,
+    "pair": "XRP/USDT",
+    "sell": "coinbase",
+    "time": "2026-08-26T13:09:02.558792+00:00"
+  },
   "markets": {
     "binance": [
       "AAVE/USDT",
@@ -110,12 +143,12 @@
     "SHIB/USDT",
     "HBAR/USDT"
   ],
-  "quote_updates": 0,
+  "quote_updates": 3257,
   "rebalancing_cost_included": false,
   "run_started_at": "2026-08-26T13:09:00.290113+00:00",
   "run_status": "running",
-  "signals": 0,
+  "signals": 1,
   "strategy": "cross_exchange_buy_low_sell_high",
-  "updated_at": "2026-08-26T13:09:00.290308+00:00",
+  "updated_at": "2026-08-26T13:09:03.360243+00:00",
   "version": 3
 }
