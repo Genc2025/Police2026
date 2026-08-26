@@ -1,0 +1,29 @@
+{
+  "balance": 100.0,
+  "closed": 0,
+  "entry_latency_ms": 120,
+  "exit_latency_ms": 100,
+  "history": [],
+  "initial_balance": 100.0,
+  "last_error": null,
+  "losses": 0,
+  "math_model": "online_ensemble_microprice_flow_regime_v1",
+  "max_concurrent_positions": 3,
+  "max_hold_seconds": 20.0,
+  "opened": 0,
+  "paper_leverage": 1.0,
+  "positions": {},
+  "run_started_at": "2026-08-26T01:32:29.267820+00:00",
+  "run_status": "running",
+  "signals": 0,
+  "strategy": "adaptive_binance_futures_microstructure",
+  "symbols": [
+    "BTCUSDT",
+    "ETHUSDT",
+    "SOLUSDT"
+  ],
+  "taker_fee_assumption": 0.0005,
+  "updated_at": "2026-08-26T01:32:29.279489+00:00",
+  "version": 1,
+  "wins": 0
+}
