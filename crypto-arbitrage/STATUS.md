@@ -13,9 +13,12 @@
 - Realtime: Binance + Kraken + Coinbase public WebSocket engine with stale-quote rejection
 - Triangular: Binance USDT three-leg paper engine
 - Persistence: `paper_arbitrage_usdt.db`
+- Dashboard: mobile-friendly table UI with paper balance, net P&L, latest market quotes, opportunities and BUY/SELL paper history
+- Dashboard API: `/api/summary`, `/api/market`, `/api/opportunities`, `/api/trades`
+- One-command launcher: `python crypto-arbitrage/paper_app.py`
 - Reporting: combined cross-exchange + triangular report
 - Tests: deterministic scanner, realtime parser and triangular engine tests
-- CI: unit tests + live USDT discovery + realtime WebSocket smoke + REST paper sample + triangular sample + artifact
+- CI: unit tests + live USDT discovery + realtime WebSocket smoke + REST paper sample + triangular sample + dashboard API/UI smoke + artifact
 
 ## Still blocked from real money
 
