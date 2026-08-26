@@ -10,7 +10,7 @@
   "contrarian_wins": 2,
   "entry_latency_ms": 120,
   "entry_policy": "strict_plus_contrarian_v3",
-  "equity": 95.4243856679515,
+  "equity": 95.42486222657686,
   "exit_latency_ms": 100,
   "history": [
     {
@@ -4840,34 +4840,34 @@
   "last_error": null,
   "latest": {
     "BTCUSDT": {
-      "confidence": 0.20441843273088456,
+      "confidence": 0.14385562036201807,
       "funding": null,
       "mid": 79025.95,
-      "predicted_edge_pct": 0.003971588486337638,
+      "predicted_edge_pct": 0.0029681767958174426,
       "regime": "mixed",
-      "score": -0.21013695694908138,
+      "score": -0.15704639131309223,
       "spread_pct": 0.00012654071226707276,
-      "time": "2026-08-26T03:06:59.784402+00:00"
+      "time": "2026-08-26T03:07:11.067788+00:00"
     },
     "ETHUSDT": {
-      "confidence": 0.28758730397057636,
+      "confidence": 0.43659653769061396,
       "funding": null,
-      "mid": 2463.425,
-      "predicted_edge_pct": 0.005038903266181004,
+      "mid": 2463.245,
+      "predicted_edge_pct": 0.006579594424730487,
       "regime": "mixed",
-      "score": -0.2666086384222754,
-      "spread_pct": 0.0004059388858911284,
-      "time": "2026-08-26T03:06:59.786448+00:00"
+      "score": -0.34812668913917927,
+      "spread_pct": 0.00040596854962532267,
+      "time": "2026-08-26T03:07:11.069742+00:00"
     },
     "SOLUSDT": {
-      "confidence": 0.16238005870723202,
+      "confidence": 0.06618592802975559,
       "funding": null,
-      "mid": 97.14500000000001,
-      "predicted_edge_pct": 0.003306023820337083,
+      "mid": 97.13499999999999,
+      "predicted_edge_pct": 0.0009289126054406842,
       "regime": "mixed",
-      "score": -0.17492189525593033,
-      "spread_pct": 0.010293890575948443,
-      "time": "2026-08-26T03:06:59.787569+00:00"
+      "score": -0.04914881510268171,
+      "spread_pct": 0.010294950326869941,
+      "time": "2026-08-26T03:07:11.070536+00:00"
     }
   },
   "losses": 243,
@@ -4998,8 +4998,8 @@
     "SOLUSDT"
   ],
   "taker_fee_assumption": 0.0005,
-  "unrealized_pnl": -0.05156934907779487,
-  "updated_at": "2026-08-26T03:06:59.821258+00:00",
+  "unrealized_pnl": -0.051092790452429426,
+  "updated_at": "2026-08-26T03:07:11.080188+00:00",
   "version": 1,
   "wins": 2
 }
