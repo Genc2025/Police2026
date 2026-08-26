@@ -1,7 +1,7 @@
 {
-  "balance": 88.70430094885009,
-  "closed": 619,
-  "contrarian_losses": 561,
+  "balance": 88.68186674451375,
+  "closed": 620,
+  "contrarian_losses": 562,
   "contrarian_min_confidence": 0.5,
   "contrarian_min_edge_pct": 0.0025,
   "contrarian_min_score": 0.28,
@@ -10,9 +10,29 @@
   "contrarian_wins": 4,
   "entry_latency_ms": 120,
   "entry_policy": "strict_plus_contrarian_v3",
-  "equity": 88.62877567566494,
+  "equity": 88.64144148401328,
   "exit_latency_ms": 100,
   "history": [
+    {
+      "balance": 88.68186674451375,
+      "entry_confidence": 0.5602368471383682,
+      "entry_mode": "CONTRARIAN",
+      "entry_price": 96.52,
+      "entry_score": -0.4102654178251599,
+      "exit_price": 96.47,
+      "fees": 0.01477721797627609,
+      "gross_pnl": -0.007656986360057645,
+      "held_seconds": 14.178650277999623,
+      "model_side": "SHORT",
+      "net_pnl": -0.022434204336333734,
+      "notional": 14.781046469456118,
+      "reason": "CONTRARIAN_REVERSAL",
+      "regime": "mixed",
+      "side": "LONG",
+      "status": "LOSS",
+      "symbol": "SOLUSDT",
+      "time": "2026-08-26T05:17:37.657205+00:00"
+    },
     {
       "balance": 88.70430094885009,
       "entry_confidence": 0.6389572025856298,
@@ -7992,26 +8012,6 @@
       "status": "LOSS",
       "symbol": "BTCUSDT",
       "time": "2026-08-26T02:56:09.219628+00:00"
-    },
-    {
-      "balance": 96.00062245146452,
-      "entry_confidence": 0.5366210885999579,
-      "entry_mode": "CONTRARIAN",
-      "entry_price": 97.19,
-      "entry_score": -0.39834339188530266,
-      "exit_price": 97.15,
-      "fees": 0.01600141901670707,
-      "gross_pnl": -0.0065869791156545785,
-      "held_seconds": 70.02254674999995,
-      "model_side": "SHORT",
-      "net_pnl": -0.02258839813236165,
-      "notional": 16.004712506264895,
-      "reason": "CONTRARIAN_REVERSAL",
-      "regime": "mixed",
-      "side": "LONG",
-      "status": "LOSS",
-      "symbol": "SOLUSDT",
-      "time": "2026-08-26T02:55:00.331604+00:00"
     }
   ],
   "initial_balance": 100.0,
@@ -8048,17 +8048,17 @@
       "time": "2026-08-26T05:17:26.999359+00:00"
     },
     "SOLUSDT": {
-      "confidence": 0.3726019806144357,
+      "confidence": 0.11729265874937549,
       "funding": null,
-      "mid": 96.455,
-      "predicted_edge_pct": 0.005950971262501401,
+      "mid": 96.485,
+      "predicted_edge_pct": 0.0024137153608988168,
       "regime": "mixed",
-      "score": -0.3148662043651535,
-      "spread_pct": 0.010367528899477379,
-      "time": "2026-08-26T05:17:34.850622+00:00"
+      "score": 0.12770980745496385,
+      "spread_pct": 0.010364305332425668,
+      "time": "2026-08-26T05:17:46.104552+00:00"
     }
   },
-  "losses": 615,
+  "losses": 616,
   "math_model": "online_ensemble_microprice_flow_regime_v1",
   "max_concurrent_positions": 3,
   "max_hold_seconds": 90.0,
@@ -8148,32 +8148,6 @@
       "side": "LONG",
       "stop_pct": 0.001,
       "target_pct": 0.00135
-    },
-    "SOLUSDT": {
-      "entry_confidence": 0.5602368471383682,
-      "entry_fee": 0.0073905232347280594,
-      "entry_mode": "CONTRARIAN",
-      "entry_price": 96.52,
-      "entry_score": -0.4102654178251599,
-      "features": {
-        "basis": 0.0,
-        "book": -0.8167361835245047,
-        "flow1": 0.0,
-        "flow5": 0.0,
-        "micro": -0.8167361835241461,
-        "mom05": -0.8604307705058329,
-        "mom2": -0.5699850143951519,
-        "mom5": 0.0
-      },
-      "model_side": "SHORT",
-      "notional": 14.781046469456118,
-      "opened_at": "2026-08-26T05:17:23.478546+00:00",
-      "opened_mono": 12366.906104621,
-      "qty": 0.15313972720116162,
-      "regime": "mixed",
-      "side": "LONG",
-      "stop_pct": 0.001,
-      "target_pct": 0.0014600441382167522
     }
   },
   "run_started_at": "2026-08-26T01:56:50.053697+00:00",
@@ -8186,8 +8160,8 @@
     "SOLUSDT"
   ],
   "taker_fee_assumption": 0.0005,
-  "unrealized_pnl": -0.0755252731851499,
-  "updated_at": "2026-08-26T05:17:34.875420+00:00",
+  "unrealized_pnl": -0.04042526050047002,
+  "updated_at": "2026-08-26T05:17:46.125139+00:00",
   "version": 1,
   "wins": 4
 }
