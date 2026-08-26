@@ -10,7 +10,7 @@
   "contrarian_wins": 6,
   "entry_latency_ms": 120,
   "entry_policy": "strict_plus_contrarian_v3",
-  "equity": 83.36242840689557,
+  "equity": 83.36159891332787,
   "exit_latency_ms": 100,
   "history": [
     {
@@ -8028,34 +8028,34 @@
   "last_error": null,
   "latest": {
     "BTCUSDT": {
-      "confidence": 0.07287501175489607,
+      "confidence": 0.23646523093450347,
       "funding": null,
-      "mid": 78969.95,
-      "predicted_edge_pct": 0.0011733531514306064,
+      "mid": 78967.15,
+      "predicted_edge_pct": 0.004412777952023969,
       "regime": "mixed",
-      "score": 0.06208217732437072,
-      "spread_pct": 0.0001266304461454272,
-      "time": "2026-08-26T07:11:24.320042+00:00"
+      "score": 0.2334803149219031,
+      "spread_pct": 0.0001266349361617696,
+      "time": "2026-08-26T07:11:35.487642+00:00"
     },
     "ETHUSDT": {
-      "confidence": 0.07620880516970811,
+      "confidence": 0.29441577430281357,
       "funding": null,
-      "mid": 2464.175,
-      "predicted_edge_pct": 0.0012875411026993329,
+      "mid": 2464.1549999999997,
+      "predicted_edge_pct": 0.0051170966076184874,
       "regime": "mixed",
-      "score": 0.06812386786768958,
-      "spread_pct": 0.00040581533372278884,
-      "time": "2026-08-26T07:11:24.322145+00:00"
+      "score": 0.27074585225494646,
+      "spread_pct": 0.00040581862747122375,
+      "time": "2026-08-26T07:11:35.489736+00:00"
     },
     "SOLUSDT": {
-      "confidence": 0.1384440359853275,
+      "confidence": 0.2554464101517448,
       "funding": null,
-      "mid": 96.85499999999999,
-      "predicted_edge_pct": 0.0028627030451343093,
+      "mid": 96.86500000000001,
+      "predicted_edge_pct": 0.004654663206124228,
       "regime": "mixed",
-      "score": 0.1514657695838259,
-      "spread_pct": 0.010324712198652745,
-      "time": "2026-08-26T07:11:24.323000+00:00"
+      "score": 0.24627847651450943,
+      "spread_pct": 0.010323646311882635,
+      "time": "2026-08-26T07:11:35.490799+00:00"
     }
   },
   "losses": 929,
@@ -8186,8 +8186,8 @@
     "SOLUSDT"
   ],
   "taker_fee_assumption": 0.0005,
-  "unrealized_pnl": -0.05162169929735683,
-  "updated_at": "2026-08-26T07:11:24.348490+00:00",
+  "unrealized_pnl": -0.052451192865063945,
+  "updated_at": "2026-08-26T07:11:35.532442+00:00",
   "version": 1,
   "wins": 6
 }
