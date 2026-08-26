@@ -40,14 +40,14 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      - name: Run BTC ETH SOL futures paper engine for 5h40m
+      - name: Run BTC ETH SOL contrarian futures paper engine for 5h40m
         env:
           FUTURES_RUNTIME_SECONDS: '20400'
           FUTURES_SAVE_INTERVAL_SECONDS: '30'
           FUTURES_TAKER_FEE: '0.0005'
           FUTURES_ENTRY_LATENCY: '0.120'
           FUTURES_EXIT_LATENCY: '0.100'
-          FUTURES_MAX_HOLD_SECONDS: '45'
+          FUTURES_MAX_HOLD_SECONDS: '90'
           FUTURES_MIN_HOLD_SECONDS: '1.2'
           FUTURES_COOLDOWN_SECONDS: '3'
           FUTURES_MIN_SCORE: '0.56'
@@ -55,8 +55,9 @@ jobs:
           FUTURES_EDGE_BUFFER: '0.00020'
           FUTURES_MAX_SPREAD: '0.00040'
           FUTURES_WARMUP_SECONDS: '15'
-          FUTURES_EXPLORE_MIN_SCORE: '0.28'
-          FUTURES_EXPLORE_MIN_CONFIDENCE: '0.50'
-          FUTURES_EXPLORE_MIN_EDGE: '0.000025'
-          FUTURES_EXPLORE_EQUITY_FRACTION: '0.1666667'
+          FUTURES_CONTRARIAN_MIN_SCORE: '0.28'
+          FUTURES_CONTRARIAN_MIN_CONFIDENCE: '0.50'
+          FUTURES_CONTRARIAN_MIN_EDGE: '0.000025'
+          FUTURES_CONTRARIAN_EQUITY_FRACTION: '0.1666667'
+          FUTURES_CONTRARIAN_REVERSAL_MIN_HOLD: '12'
         run: python crypto-arbitrage/futures_entrypoint.py
