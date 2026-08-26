@@ -12,6 +12,8 @@ from typing import Any, Iterable
 
 import httpx
 
+from market_probe import MarketSupport, discover
+
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT_CONFIG = ROOT / "config.example.json"
@@ -33,37 +35,22 @@ class Quote:
 @dataclass(frozen=True)
 class Opportunity:
     pair: str
+    quote_asset: str
     buy_exchange: str
     buy_ask: float
     buy_ask_qty: float
     sell_exchange: str
     sell_bid: float
     sell_bid_qty: float
-    capital_eur: float
+    capital_quote: float
     base_qty: float
     gross_spread_pct: float
     estimated_cost_pct: float
     net_profit_pct: float
-    net_profit_eur: float
+    net_profit_quote: float
     observed_at: str
     max_leg_latency_ms: float
     snapshot_skew_ms: float
-
-
-SYMBOLS = {
-    "BTC/EUR": {
-        "binance": "BTCEUR",
-        "kraken": "XBTEUR",
-        "coinbase": "BTC-EUR",
-        "bitstamp": "btceur",
-    },
-    "ETH/EUR": {
-        "binance": "ETHEUR",
-        "kraken": "ETHEUR",
-        "coinbase": "ETH-EUR",
-        "bitstamp": "etheur",
-    },
-}
 
 
 def utc_now() -> str:
@@ -78,6 +65,27 @@ def timestamp_ms(value: str) -> float:
     return datetime.fromisoformat(value).timestamp() * 1000.0
 
 
+def split_pair(pair: str) -> tuple[str, str]:
+    parts = pair.upper().split("/")
+    if len(parts) != 2 or not all(parts):
+        raise ValueError(f"Invalid pair: {pair}")
+    return parts[0], parts[1]
+
+
+def symbol_for(exchange: str, pair: str) -> str:
+    base, quote = split_pair(pair)
+    if exchange == "binance":
+        return f"{base}{quote}"
+    if exchange == "kraken":
+        kraken_alias = {"BTC": "XBT", "DOGE": "XDG"}
+        return f"{kraken_alias.get(base, base)}{kraken_alias.get(quote, quote)}"
+    if exchange == "coinbase":
+        return f"{base}-{quote}"
+    if exchange == "bitstamp":
+        return f"{base}{quote}".lower()
+    raise ValueError(f"Unsupported exchange: {exchange}")
+
+
 async def fetch_json(client: httpx.AsyncClient, url: str) -> Any:
     response = await client.get(url, timeout=8.0, headers={"Cache-Control": "no-cache"})
     response.raise_for_status()
@@ -85,7 +93,7 @@ async def fetch_json(client: httpx.AsyncClient, url: str) -> Any:
 
 
 async def binance_quote(client: httpx.AsyncClient, pair: str) -> Quote:
-    symbol = SYMBOLS[pair]["binance"]
+    symbol = symbol_for("binance", pair)
     started = time.perf_counter()
     data = await fetch_json(
         client,
@@ -98,7 +106,7 @@ async def binance_quote(client: httpx.AsyncClient, pair: str) -> Quote:
 
 
 async def kraken_quote(client: httpx.AsyncClient, pair: str) -> Quote:
-    symbol = SYMBOLS[pair]["kraken"]
+    symbol = symbol_for("kraken", pair)
     started = time.perf_counter()
     data = await fetch_json(
         client,
@@ -114,7 +122,7 @@ async def kraken_quote(client: httpx.AsyncClient, pair: str) -> Quote:
 
 
 async def coinbase_quote(client: httpx.AsyncClient, pair: str) -> Quote:
-    product = SYMBOLS[pair]["coinbase"]
+    product = symbol_for("coinbase", pair)
     started = time.perf_counter()
     data = await fetch_json(
         client,
@@ -127,7 +135,7 @@ async def coinbase_quote(client: httpx.AsyncClient, pair: str) -> Quote:
 
 
 async def bitstamp_quote(client: httpx.AsyncClient, pair: str) -> Quote:
-    symbol = SYMBOLS[pair]["bitstamp"]
+    symbol = symbol_for("bitstamp", pair)
     started = time.perf_counter()
     data = await fetch_json(
         client,
@@ -156,19 +164,21 @@ def load_config(path: Path | None = None) -> dict[str, Any]:
 
 def validate_config(config: dict[str, Any]) -> None:
     required = {
-        "virtual_capital_eur",
+        "capital_asset",
+        "virtual_capital",
         "scan_interval_seconds",
         "slippage_pct_each_leg",
         "safety_buffer_pct",
-        "minimum_net_profit_eur",
+        "minimum_net_profit",
         "pairs",
         "fees_pct",
     }
     missing = required - set(config)
     if missing:
         raise ValueError(f"Missing config keys: {sorted(missing)}")
-    if float(config["virtual_capital_eur"]) <= 0:
-        raise ValueError("virtual_capital_eur must be > 0")
+    capital_asset = str(config["capital_asset"]).upper()
+    if float(config["virtual_capital"]) <= 0:
+        raise ValueError("virtual_capital must be > 0")
     if float(config["scan_interval_seconds"]) < 1.0:
         raise ValueError("scan_interval_seconds must be >= 1.0")
     if float(config.get("max_quote_latency_ms", 1500.0)) <= 0:
@@ -176,8 +186,9 @@ def validate_config(config: dict[str, Any]) -> None:
     if float(config.get("max_snapshot_skew_ms", 1000.0)) <= 0:
         raise ValueError("max_snapshot_skew_ms must be > 0")
     for pair in config["pairs"]:
-        if pair not in SYMBOLS:
-            raise ValueError(f"Unsupported pair: {pair}")
+        _base, quote = split_pair(str(pair))
+        if quote != capital_asset:
+            raise ValueError(f"Pair {pair} does not use capital_asset {capital_asset}")
     for exchange in FETCHERS:
         if exchange not in config["fees_pct"]:
             raise ValueError(f"Missing fee assumption for {exchange}")
@@ -185,7 +196,8 @@ def validate_config(config: dict[str, Any]) -> None:
 
 def evaluate(quotes: Iterable[Quote], config: dict[str, Any]) -> Opportunity | None:
     quote_list = list(quotes)
-    capital = float(config["virtual_capital_eur"])
+    capital = float(config["virtual_capital"])
+    quote_asset = str(config["capital_asset"]).upper()
     fees = {name: float(value) / 100.0 for name, value in config["fees_pct"].items()}
     slip = float(config["slippage_pct_each_leg"]) / 100.0
     safety = float(config["safety_buffer_pct"]) / 100.0
@@ -201,6 +213,10 @@ def evaluate(quotes: Iterable[Quote], config: dict[str, Any]) -> Opportunity | N
             if buy.ask <= 0 or sell.bid <= 0 or buy.ask_qty <= 0 or sell.bid_qty <= 0:
                 continue
 
+            _base, pair_quote = split_pair(buy.pair)
+            if pair_quote != quote_asset:
+                continue
+
             leg_latency = max(buy.latency_ms, sell.latency_ms)
             if leg_latency > max_latency:
                 continue
@@ -210,66 +226,70 @@ def evaluate(quotes: Iterable[Quote], config: dict[str, Any]) -> Opportunity | N
 
             buy_fee = fees[buy.exchange]
             sell_fee = fees[sell.exchange]
-
-            # Conservative paper model: pay taker fee + configured slippage on entry,
-            # then sell the acquired base amount with taker fee + slippage on exit.
             effective_buy_price = buy.ask * (1.0 + buy_fee + slip)
             base_qty = capital / effective_buy_price
 
-            # Require the full configured paper order to fit at top-of-book on BOTH legs.
             if base_qty > buy.ask_qty or base_qty > sell.bid_qty:
                 continue
 
-            gross_sell_eur = base_qty * sell.bid
-            net_sell_eur = gross_sell_eur * (1.0 - sell_fee - slip)
-            safety_cost_eur = capital * safety
-            net_profit_eur = net_sell_eur - capital - safety_cost_eur
-            net_profit_pct = (net_profit_eur / capital) * 100.0
+            gross_sell_quote = base_qty * sell.bid
+            net_sell_quote = gross_sell_quote * (1.0 - sell_fee - slip)
+            safety_cost_quote = capital * safety
+            net_profit_quote = net_sell_quote - capital - safety_cost_quote
+            net_profit_pct = (net_profit_quote / capital) * 100.0
             gross_spread_pct = ((sell.bid / buy.ask) - 1.0) * 100.0
             estimated_cost_pct = gross_spread_pct - net_profit_pct
 
             candidate = Opportunity(
                 pair=buy.pair,
+                quote_asset=quote_asset,
                 buy_exchange=buy.exchange,
                 buy_ask=buy.ask,
                 buy_ask_qty=buy.ask_qty,
                 sell_exchange=sell.exchange,
                 sell_bid=sell.bid,
                 sell_bid_qty=sell.bid_qty,
-                capital_eur=capital,
+                capital_quote=capital,
                 base_qty=base_qty,
                 gross_spread_pct=gross_spread_pct,
                 estimated_cost_pct=estimated_cost_pct,
                 net_profit_pct=net_profit_pct,
-                net_profit_eur=net_profit_eur,
+                net_profit_quote=net_profit_quote,
                 observed_at=max(buy.observed_at, sell.observed_at),
                 max_leg_latency_ms=leg_latency,
                 snapshot_skew_ms=skew_ms,
             )
-            if best is None or candidate.net_profit_eur > best.net_profit_eur:
+            if best is None or candidate.net_profit_quote > best.net_profit_quote:
                 best = candidate
 
     return best
 
 
-async def collect_pair(client: httpx.AsyncClient, pair: str) -> tuple[list[Quote], list[str]]:
-    tasks = [FETCHERS[name](client, pair) for name in FETCHERS]
+def support_map(supports: Iterable[MarketSupport]) -> dict[str, frozenset[str]]:
+    return {support.exchange: support.pairs for support in supports}
+
+
+async def collect_pair(
+    client: httpx.AsyncClient,
+    pair: str,
+    markets: dict[str, frozenset[str]] | None = None,
+) -> tuple[list[Quote], list[str]]:
+    exchange_names = [
+        name
+        for name in FETCHERS
+        if markets is None or pair in markets.get(name, frozenset())
+    ]
+    tasks = [FETCHERS[name](client, pair) for name in exchange_names]
     results = await asyncio.gather(*tasks, return_exceptions=True)
     quotes: list[Quote] = []
     errors: list[str] = []
 
-    for name, result in zip(FETCHERS, results):
+    for name, result in zip(exchange_names, results):
         if isinstance(result, Exception):
             errors.append(f"{name}: {type(result).__name__}: {result}")
         else:
             quotes.append(result)
     return quotes, errors
-
-
-def ensure_column(connection: sqlite3.Connection, table: str, name: str, definition: str) -> None:
-    columns = {row[1] for row in connection.execute(f"PRAGMA table_info({table})")}
-    if name not in columns:
-        connection.execute(f"ALTER TABLE {table} ADD COLUMN {name} {definition}")
 
 
 def init_db(path: Path) -> sqlite3.Connection:
@@ -288,7 +308,7 @@ def init_db(path: Path) -> sqlite3.Connection:
             ask REAL NOT NULL,
             ask_qty REAL NOT NULL,
             observed_at TEXT NOT NULL,
-            latency_ms REAL NOT NULL DEFAULT 0
+            latency_ms REAL NOT NULL
         )
         """
     )
@@ -298,26 +318,24 @@ def init_db(path: Path) -> sqlite3.Connection:
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             scan_id TEXT NOT NULL,
             pair TEXT NOT NULL,
+            quote_asset TEXT NOT NULL,
             buy_exchange TEXT NOT NULL,
             buy_ask REAL NOT NULL,
             sell_exchange TEXT NOT NULL,
             sell_bid REAL NOT NULL,
-            capital_eur REAL NOT NULL,
+            capital_quote REAL NOT NULL,
             base_qty REAL NOT NULL,
             gross_spread_pct REAL NOT NULL,
             estimated_cost_pct REAL NOT NULL,
             net_profit_pct REAL NOT NULL,
-            net_profit_eur REAL NOT NULL,
+            net_profit_quote REAL NOT NULL,
             observed_at TEXT NOT NULL,
             qualifies INTEGER NOT NULL,
-            max_leg_latency_ms REAL NOT NULL DEFAULT 0,
-            snapshot_skew_ms REAL NOT NULL DEFAULT 0
+            max_leg_latency_ms REAL NOT NULL,
+            snapshot_skew_ms REAL NOT NULL
         )
         """
     )
-    ensure_column(connection, "quotes", "latency_ms", "REAL NOT NULL DEFAULT 0")
-    ensure_column(connection, "opportunities", "max_leg_latency_ms", "REAL NOT NULL DEFAULT 0")
-    ensure_column(connection, "opportunities", "snapshot_skew_ms", "REAL NOT NULL DEFAULT 0")
     connection.commit()
     return connection
 
@@ -343,36 +361,36 @@ def persist_scan(
         connection.execute(
             """
             INSERT INTO opportunities(
-                scan_id, pair, buy_exchange, buy_ask, sell_exchange, sell_bid,
-                capital_eur, base_qty, gross_spread_pct, estimated_cost_pct,
-                net_profit_pct, net_profit_eur, observed_at, qualifies,
+                scan_id, pair, quote_asset, buy_exchange, buy_ask, sell_exchange, sell_bid,
+                capital_quote, base_qty, gross_spread_pct, estimated_cost_pct,
+                net_profit_pct, net_profit_quote, observed_at, qualifies,
                 max_leg_latency_ms, snapshot_skew_ms
             ) VALUES (
-                :scan_id, :pair, :buy_exchange, :buy_ask, :sell_exchange, :sell_bid,
-                :capital_eur, :base_qty, :gross_spread_pct, :estimated_cost_pct,
-                :net_profit_pct, :net_profit_eur, :observed_at, :qualifies,
+                :scan_id, :pair, :quote_asset, :buy_exchange, :buy_ask, :sell_exchange, :sell_bid,
+                :capital_quote, :base_qty, :gross_spread_pct, :estimated_cost_pct,
+                :net_profit_pct, :net_profit_quote, :observed_at, :qualifies,
                 :max_leg_latency_ms, :snapshot_skew_ms
             )
             """,
             {
                 **data,
                 "scan_id": scan_id,
-                "qualifies": int(opportunity.net_profit_eur >= minimum_profit),
+                "qualifies": int(opportunity.net_profit_quote >= minimum_profit),
             },
         )
     connection.commit()
 
 
-def print_result(opportunity: Opportunity | None, minimum: float, pair: str) -> None:
+def print_result(opportunity: Opportunity | None, minimum: float, pair: str, quote_asset: str) -> None:
     if opportunity is None:
-        print(f"{pair:7} | NO COMPARABLE FULL-LIQUIDITY/FRESH ROUTE")
+        print(f"{pair:10} | NO COMPARABLE FULL-LIQUIDITY/FRESH ROUTE")
         return
-    status = "PAPER OPPORTUNITY" if opportunity.net_profit_eur >= minimum else "NO TRADE"
+    status = "PAPER OPPORTUNITY" if opportunity.net_profit_quote >= minimum else "NO TRADE"
     print(
-        f"{opportunity.pair:7} | BUY {opportunity.buy_exchange:9} {opportunity.buy_ask:.4f} | "
-        f"SELL {opportunity.sell_exchange:9} {opportunity.sell_bid:.4f} | "
+        f"{opportunity.pair:10} | BUY {opportunity.buy_exchange:9} {opportunity.buy_ask:.8f} | "
+        f"SELL {opportunity.sell_exchange:9} {opportunity.sell_bid:.8f} | "
         f"gross {opportunity.gross_spread_pct:+.4f}% | costs {opportunity.estimated_cost_pct:.4f}% | "
-        f"net {opportunity.net_profit_pct:+.4f}% = EUR {opportunity.net_profit_eur:+.4f} | "
+        f"net {opportunity.net_profit_pct:+.4f}% = {quote_asset} {opportunity.net_profit_quote:+.4f} | "
         f"lat {opportunity.max_leg_latency_ms:.0f}ms skew {opportunity.snapshot_skew_ms:.0f}ms | {status}"
     )
 
@@ -381,18 +399,20 @@ async def scan_once(
     client: httpx.AsyncClient,
     config: dict[str, Any],
     connection: sqlite3.Connection | None,
+    markets: dict[str, frozenset[str]],
 ) -> int:
     successful_exchanges: set[str] = set()
-    minimum = float(config["minimum_net_profit_eur"])
+    minimum = float(config["minimum_net_profit"])
+    quote_asset = str(config["capital_asset"]).upper()
 
     for pair in config["pairs"]:
         started = time.time_ns()
-        quotes, errors = await collect_pair(client, pair)
+        quotes, errors = await collect_pair(client, pair, markets)
         successful_exchanges.update(quote.exchange for quote in quotes)
         scan_id = f"{started}-{pair.replace('/', '')}"
         opportunity = evaluate(quotes, config) if len(quotes) >= 2 else None
         persist_scan(connection, scan_id, quotes, opportunity, minimum)
-        print_result(opportunity, minimum, pair)
+        print_result(opportunity, minimum, pair, quote_asset)
         for error in errors:
             print(f"  warning: {error}")
 
@@ -401,17 +421,31 @@ async def scan_once(
 
 async def run(config: dict[str, Any], cycles: int | None, no_db: bool) -> int:
     interval = float(config["scan_interval_seconds"])
-    db_path = ROOT / str(config.get("sqlite_path", "paper_arbitrage.db"))
+    db_path = ROOT / str(config.get("sqlite_path", "paper_arbitrage_usdt.db"))
     connection = None if no_db else init_db(db_path)
+    quote_asset = str(config["capital_asset"]).upper()
 
-    print("Crypto Arbitrage Scanner V1 — READ ONLY / PAPER TRADING")
-    print(f"Virtual capital: EUR {float(config['virtual_capital_eur']):.2f}")
-    print(f"Minimum paper profit: EUR {float(config['minimum_net_profit_eur']):.2f}")
+    supports, discovery_errors = await discover()
+    markets = support_map(supports)
+    pair_venues = {
+        pair: [name for name, pairs in markets.items() if pair in pairs]
+        for pair in config["pairs"]
+    }
+
+    print("Crypto Arbitrage Scanner V2 — READ ONLY / PAPER TRADING")
+    print(f"Virtual capital: {quote_asset} {float(config['virtual_capital']):.2f}")
+    print(f"Minimum paper profit: {quote_asset} {float(config['minimum_net_profit']):.2f}")
     print(f"SQLite journal: {'disabled' if no_db else db_path}")
-    print("No API keys. No orders. No withdrawals.\n")
+    print("No API keys. No orders. No withdrawals.")
+    print("Discovered venues:")
+    for pair, venues in pair_venues.items():
+        print(f"  {pair}: {', '.join(venues) if venues else 'none'}")
+    for error in discovery_errors:
+        print(f"  discovery warning: {error}")
+    print()
 
     headers = {
-        "User-Agent": "Police2026-Crypto-Arbitrage-Scanner/1.2",
+        "User-Agent": "Police2026-Crypto-Arbitrage-Scanner/2.0",
         "Accept": "application/json",
     }
     completed = 0
@@ -419,7 +453,7 @@ async def run(config: dict[str, Any], cycles: int | None, no_db: bool) -> int:
     try:
         async with httpx.AsyncClient(headers=headers, follow_redirects=True) as client:
             while cycles is None or completed < cycles:
-                last_successful_exchanges = await scan_once(client, config, connection)
+                last_successful_exchanges = await scan_once(client, config, connection, markets)
                 completed += 1
                 if cycles is not None and completed >= cycles:
                     break
