@@ -31,14 +31,15 @@ class Edge:
 @dataclass(frozen=True)
 class Triangle:
     exchange: str
+    start_asset: str
     path: str
     symbols: str
-    start_eur: float
-    gross_end_eur: float
-    net_end_eur: float
+    start_amount: float
+    gross_end_amount: float
+    net_end_amount: float
     gross_profit_pct: float
     net_profit_pct: float
-    net_profit_eur: float
+    net_profit_quote: float
     market_latency_ms: float
     observed_at: str
 
@@ -55,20 +56,18 @@ def load_config(path: Path | None = None) -> dict[str, Any]:
         raise ValueError("Missing triangular config")
     required = {
         "start_asset",
-        "virtual_capital_eur",
+        "virtual_capital",
         "fee_pct",
         "slippage_pct_each_leg",
         "safety_buffer_pct",
-        "minimum_net_profit_eur",
+        "minimum_net_profit",
         "max_market_data_latency_ms",
     }
     missing = required - set(tri)
     if missing:
         raise ValueError(f"Missing triangular config keys: {sorted(missing)}")
-    if tri["start_asset"] != "EUR":
-        raise ValueError("V1 triangular engine currently requires EUR as start_asset")
-    if float(tri["virtual_capital_eur"]) <= 0:
-        raise ValueError("triangular.virtual_capital_eur must be > 0")
+    if float(tri["virtual_capital"]) <= 0:
+        raise ValueError("triangular.virtual_capital must be > 0")
     return config
 
 
@@ -109,14 +108,9 @@ def build_edges(tickers: list[dict[str, Any]], symbols: dict[str, dict[str, Any]
             continue
         if min(bid, bid_qty, ask, ask_qty) <= 0:
             continue
-
         base = meta["baseAsset"]
         quote = meta["quoteAsset"]
-
-        # Sell base at best bid: BASE -> QUOTE. Input capacity is bidQty BASE.
         edges.append(Edge(base, quote, symbol, "SELL", bid, bid_qty))
-
-        # Buy base at best ask: QUOTE -> BASE. Input capacity is askPrice * askQty QUOTE.
         edges.append(Edge(quote, base, symbol, "BUY", ask, ask * ask_qty))
     return edges
 
@@ -127,28 +121,23 @@ def convert(amount: float, edge: Edge, fee_rate: float, slippage_rate: float) ->
     retained = 1.0 - fee_rate - slippage_rate
     if retained <= 0:
         return None
-    if edge.side == "SELL":
-        return amount * edge.price * retained
-    return (amount / edge.price) * retained
+    return amount * edge.price * retained if edge.side == "SELL" else (amount / edge.price) * retained
 
 
 def convert_gross(amount: float, edge: Edge) -> float | None:
     if amount <= 0 or amount > edge.max_input:
         return None
-    if edge.side == "SELL":
-        return amount * edge.price
-    return amount / edge.price
+    return amount * edge.price if edge.side == "SELL" else amount / edge.price
 
 
 def find_best_triangle(edges: list[Edge], config: dict[str, Any], latency_ms: float) -> Triangle | None:
     tri = config["triangular"]
-    start = str(tri["start_asset"])
-    capital = float(tri["virtual_capital_eur"])
+    start = str(tri["start_asset"]).upper()
+    capital = float(tri["virtual_capital"])
     fee_rate = float(tri["fee_pct"]) / 100.0
     slip_rate = float(tri["slippage_pct_each_leg"]) / 100.0
     safety_rate = float(tri["safety_buffer_pct"]) / 100.0
     max_latency = float(tri["max_market_data_latency_ms"])
-
     if latency_ms > max_latency:
         return None
 
@@ -158,7 +147,6 @@ def find_best_triangle(edges: list[Edge], config: dict[str, Any], latency_ms: fl
 
     best: Triangle | None = None
     observed_at = utc_now()
-
     for first in adjacency.get(start, []):
         if first.dst == start:
             continue
@@ -166,9 +154,7 @@ def find_best_triangle(edges: list[Edge], config: dict[str, Any], latency_ms: fl
             if second.dst in {start, first.src} or second.symbol == first.symbol:
                 continue
             for third in adjacency.get(second.dst, []):
-                if third.dst != start:
-                    continue
-                if len({first.symbol, second.symbol, third.symbol}) != 3:
+                if third.dst != start or len({first.symbol, second.symbol, third.symbol}) != 3:
                     continue
 
                 gross1 = convert_gross(capital, first)
@@ -191,24 +177,23 @@ def find_best_triangle(edges: list[Edge], config: dict[str, Any], latency_ms: fl
                 if net3 is None:
                     continue
 
-                net_end = net3 - (capital * safety_rate)
+                net_end = net3 - capital * safety_rate
                 net_profit = net_end - capital
-                gross_profit_pct = ((gross3 / capital) - 1.0) * 100.0
-                net_profit_pct = (net_profit / capital) * 100.0
                 candidate = Triangle(
                     exchange="binance",
+                    start_asset=start,
                     path=f"{start}->{first.dst}->{second.dst}->{start}",
                     symbols=f"{first.symbol},{second.symbol},{third.symbol}",
-                    start_eur=capital,
-                    gross_end_eur=gross3,
-                    net_end_eur=net_end,
-                    gross_profit_pct=gross_profit_pct,
-                    net_profit_pct=net_profit_pct,
-                    net_profit_eur=net_profit,
+                    start_amount=capital,
+                    gross_end_amount=gross3,
+                    net_end_amount=net_end,
+                    gross_profit_pct=((gross3 / capital) - 1.0) * 100.0,
+                    net_profit_pct=(net_profit / capital) * 100.0,
+                    net_profit_quote=net_profit,
                     market_latency_ms=latency_ms,
                     observed_at=observed_at,
                 )
-                if best is None or candidate.net_profit_eur > best.net_profit_eur:
+                if best is None or candidate.net_profit_quote > best.net_profit_quote:
                     best = candidate
     return best
 
@@ -221,14 +206,15 @@ def init_db(path: Path) -> sqlite3.Connection:
         CREATE TABLE IF NOT EXISTS triangular_opportunities (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             exchange TEXT NOT NULL,
+            start_asset TEXT NOT NULL,
             path TEXT NOT NULL,
             symbols TEXT NOT NULL,
-            start_eur REAL NOT NULL,
-            gross_end_eur REAL NOT NULL,
-            net_end_eur REAL NOT NULL,
+            start_amount REAL NOT NULL,
+            gross_end_amount REAL NOT NULL,
+            net_end_amount REAL NOT NULL,
             gross_profit_pct REAL NOT NULL,
             net_profit_pct REAL NOT NULL,
-            net_profit_eur REAL NOT NULL,
+            net_profit_quote REAL NOT NULL,
             market_latency_ms REAL NOT NULL,
             observed_at TEXT NOT NULL,
             qualifies INTEGER NOT NULL
@@ -245,45 +231,44 @@ def persist(connection: sqlite3.Connection | None, result: Triangle | None, mini
     connection.execute(
         """
         INSERT INTO triangular_opportunities(
-            exchange, path, symbols, start_eur, gross_end_eur, net_end_eur,
-            gross_profit_pct, net_profit_pct, net_profit_eur, market_latency_ms,
-            observed_at, qualifies
+            exchange, start_asset, path, symbols, start_amount, gross_end_amount, net_end_amount,
+            gross_profit_pct, net_profit_pct, net_profit_quote, market_latency_ms, observed_at, qualifies
         ) VALUES (
-            :exchange, :path, :symbols, :start_eur, :gross_end_eur, :net_end_eur,
-            :gross_profit_pct, :net_profit_pct, :net_profit_eur, :market_latency_ms,
-            :observed_at, :qualifies
+            :exchange, :start_asset, :path, :symbols, :start_amount, :gross_end_amount, :net_end_amount,
+            :gross_profit_pct, :net_profit_pct, :net_profit_quote, :market_latency_ms, :observed_at, :qualifies
         )
         """,
-        {**asdict(result), "qualifies": int(result.net_profit_eur >= minimum)},
+        {**asdict(result), "qualifies": int(result.net_profit_quote >= minimum)},
     )
     connection.commit()
 
 
-def print_result(result: Triangle | None, minimum: float) -> None:
+def print_result(result: Triangle | None, minimum: float, start_asset: str) -> None:
     if result is None:
-        print("TRIANGULAR | no fresh/full-liquidity EUR triangle found")
+        print(f"TRIANGULAR | no fresh/full-liquidity {start_asset} triangle found")
         return
-    status = "PAPER OPPORTUNITY" if result.net_profit_eur >= minimum else "NO TRADE"
+    status = "PAPER OPPORTUNITY" if result.net_profit_quote >= minimum else "NO TRADE"
     print(
         f"TRIANGULAR | {result.path} | {result.symbols} | "
         f"gross {result.gross_profit_pct:+.4f}% | net {result.net_profit_pct:+.4f}% "
-        f"= EUR {result.net_profit_eur:+.4f} | latency {result.market_latency_ms:.0f}ms | {status}"
+        f"= {start_asset} {result.net_profit_quote:+.4f} | latency {result.market_latency_ms:.0f}ms | {status}"
     )
 
 
 async def run(config: dict[str, Any], cycles: int, no_db: bool) -> int:
     tri = config["triangular"]
     interval = float(config.get("scan_interval_seconds", 3.0))
-    minimum = float(tri["minimum_net_profit_eur"])
-    db_path = ROOT / str(config.get("sqlite_path", "paper_arbitrage.db"))
+    minimum = float(tri["minimum_net_profit"])
+    start_asset = str(tri["start_asset"]).upper()
+    db_path = ROOT / str(config.get("sqlite_path", "paper_arbitrage_usdt.db"))
     connection = None if no_db else init_db(db_path)
     headers = {
-        "User-Agent": "Police2026-Crypto-Arbitrage-Triangular/1.0",
+        "User-Agent": "Police2026-Crypto-Arbitrage-Triangular/2.0",
         "Accept": "application/json",
     }
 
-    print("Binance Triangular Arbitrage V1 — READ ONLY / PAPER TRADING")
-    print(f"Start capital: EUR {float(tri['virtual_capital_eur']):.2f}")
+    print("Binance Triangular Arbitrage V2 — READ ONLY / PAPER TRADING")
+    print(f"Start capital: {start_asset} {float(tri['virtual_capital']):.2f}")
     print("No API keys. No orders. No withdrawals.\n")
 
     try:
@@ -291,10 +276,9 @@ async def run(config: dict[str, Any], cycles: int, no_db: bool) -> int:
             for cycle in range(cycles):
                 try:
                     tickers, symbols, latency_ms = await fetch_market(client)
-                    edges = build_edges(tickers, symbols)
-                    result = find_best_triangle(edges, config, latency_ms)
+                    result = find_best_triangle(build_edges(tickers, symbols), config, latency_ms)
                     persist(connection, result, minimum)
-                    print_result(result, minimum)
+                    print_result(result, minimum, start_asset)
                 except Exception as exc:
                     print(f"TRIANGULAR | warning: {type(exc).__name__}: {exc}")
                     if cycle == cycles - 1:
@@ -308,7 +292,7 @@ async def run(config: dict[str, Any], cycles: int, no_db: bool) -> int:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Binance EUR triangular-arbitrage paper scanner")
+    parser = argparse.ArgumentParser(description="Binance triangular-arbitrage paper scanner")
     parser.add_argument("--cycles", type=int, default=1, help="Number of snapshots to evaluate")
     parser.add_argument("--no-db", action="store_true", help="Disable SQLite persistence")
     parser.add_argument("--config", type=Path, help="Path to JSON config")
