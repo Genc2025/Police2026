@@ -5,13 +5,13 @@
   "cancelled": 0,
   "current_best": {
     "buy": "bitstamp",
-    "gross_spread_pct": 0.004148299803374833,
-    "net": -0.39556828095093977,
+    "gross_spread_pct": 0.004476053115820555,
+    "net": -0.39524183766846477,
     "pair": "BTC/USDT",
     "sell": "binance",
-    "skew_ms": 87.44622800077195
+    "skew_ms": 41.2250760000461
   },
-  "evaluations": 509510,
+  "evaluations": 522964,
   "executed": 0,
   "execution_delay_ms": 350,
   "fee_assumptions": {
@@ -111,12 +111,12 @@
     "SHIB/USDT",
     "HBAR/USDT"
   ],
-  "quote_updates": 4742169,
+  "quote_updates": 4844684,
   "rebalancing_cost_included": false,
   "run_started_at": "2026-08-26T07:02:37.055402+00:00",
   "run_status": "running",
   "signals": 0,
   "strategy": "cross_exchange_buy_low_sell_high",
-  "updated_at": "2026-08-26T10:08:40.970795+00:00",
+  "updated_at": "2026-08-26T10:13:42.804385+00:00",
   "version": 3
 }
