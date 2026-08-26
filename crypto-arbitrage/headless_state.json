@@ -1,17 +1,17 @@
 {
   "balance": 100.0,
-  "best_cycle": "BTC/USDT bitstamp\u2192binance",
-  "best_net": -0.35610346391256087,
+  "best_cycle": "BTC/USDT binance\u2192bitstamp",
+  "best_net": -0.3551238520714719,
   "cancelled": 0,
   "current_best": {
     "buy": "bitstamp",
-    "gross_spread_pct": 0.009660500068608968,
-    "net": -0.3900781129501638,
+    "gross_spread_pct": -0.007678667773947101,
+    "net": -0.4073479761388512,
     "pair": "BTC/USDT",
     "sell": "binance",
-    "skew_ms": 17.628849999709928
+    "skew_ms": 91.84849300027054
   },
-  "evaluations": 127692,
+  "evaluations": 142384,
   "executed": 0,
   "execution_delay_ms": 350,
   "fee_assumptions": {
@@ -23,7 +23,7 @@
   "feeds_online": {
     "binance": true,
     "bitstamp": true,
-    "coinbase": false,
+    "coinbase": true,
     "kraken": false
   },
   "history": [],
@@ -111,12 +111,12 @@
     "SHIB/USDT",
     "HBAR/USDT"
   ],
-  "quote_updates": 1170442,
+  "quote_updates": 1307412,
   "rebalancing_cost_included": false,
   "run_started_at": "2026-08-26T01:24:47.411614+00:00",
   "run_status": "running",
   "signals": 0,
   "strategy": "cross_exchange_buy_low_sell_high",
-  "updated_at": "2026-08-26T02:15:04.513019+00:00",
+  "updated_at": "2026-08-26T02:20:06.493031+00:00",
   "version": 3
 }
