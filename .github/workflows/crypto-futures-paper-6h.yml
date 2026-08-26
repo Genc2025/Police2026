@@ -1,0 +1,55 @@
+name: Crypto Futures Paper 6h
+
+on:
+  schedule:
+    - cron: '23 */6 * * *'
+  workflow_dispatch:
+  push:
+    branches: ["claude/html-demo-rn-app-jz85o7"]
+    paths:
+      - "crypto-arbitrage/futures_runner.py"
+      - ".github/workflows/crypto-futures-paper-6h.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: crypto-futures-paper-6h
+  cancel-in-progress: true
+
+jobs:
+  futures-paper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/html-demo-rn-app-jz85o7
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install websocket client
+        run: python -m pip install 'websockets>=14,<16'
+      - name: Validate futures research engine
+        run: python -m py_compile crypto-arbitrage/futures_runner.py
+      - name: Configure state commits
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Run BTC ETH SOL futures paper engine for 5h40m
+        env:
+          FUTURES_RUNTIME_SECONDS: '20400'
+          FUTURES_SAVE_INTERVAL_SECONDS: '120'
+          FUTURES_TAKER_FEE: '0.0005'
+          FUTURES_ENTRY_LATENCY: '0.120'
+          FUTURES_EXIT_LATENCY: '0.100'
+          FUTURES_MAX_HOLD_SECONDS: '20'
+          FUTURES_MIN_HOLD_SECONDS: '1.2'
+          FUTURES_COOLDOWN_SECONDS: '3'
+          FUTURES_MIN_SCORE: '0.56'
+          FUTURES_MIN_CONFIDENCE: '0.68'
+          FUTURES_EDGE_BUFFER: '0.00020'
+          FUTURES_MAX_SPREAD: '0.00040'
+          FUTURES_WARMUP_SECONDS: '15'
+        run: python crypto-arbitrage/futures_runner.py
