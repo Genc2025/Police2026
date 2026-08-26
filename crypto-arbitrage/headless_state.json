@@ -99,10 +99,10 @@
   ],
   "quote_updates": 0,
   "rebalancing_cost_included": false,
-  "run_started_at": "2026-08-26T01:22:45.892361+00:00",
+  "run_started_at": "2026-08-26T01:24:47.411614+00:00",
   "run_status": "running",
   "signals": 0,
   "strategy": "cross_exchange_buy_low_sell_high",
-  "updated_at": "2026-08-26T01:22:45.892597+00:00",
+  "updated_at": "2026-08-26T01:24:47.411822+00:00",
   "version": 3
 }
