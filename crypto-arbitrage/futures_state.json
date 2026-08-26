@@ -6,6 +6,7 @@
   "contrarian_min_score": 0.28,
   "entry_latency_ms": 120,
   "entry_policy": "strict_plus_contrarian_v3",
+  "equity": 99.11081039861008,
   "exit_latency_ms": 100,
   "history": [
     {
@@ -1052,7 +1053,8 @@
     "SOLUSDT"
   ],
   "taker_fee_assumption": 0.0005,
-  "updated_at": "2026-08-26T01:56:50.057423+00:00",
+  "unrealized_pnl": 0.0,
+  "updated_at": "2026-08-26T01:57:01.257129+00:00",
   "version": 1,
   "wins": 0
 }
