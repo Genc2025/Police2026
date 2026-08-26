@@ -13,7 +13,7 @@
   "opened": 0,
   "paper_leverage": 1.0,
   "positions": {},
-  "run_started_at": "2026-08-26T01:32:29.267820+00:00",
+  "run_started_at": "2026-08-26T01:34:20.006703+00:00",
   "run_status": "running",
   "signals": 0,
   "strategy": "adaptive_binance_futures_microstructure",
@@ -23,7 +23,7 @@
     "SOLUSDT"
   ],
   "taker_fee_assumption": 0.0005,
-  "updated_at": "2026-08-26T01:32:29.279489+00:00",
+  "updated_at": "2026-08-26T01:34:20.018824+00:00",
   "version": 1,
   "wins": 0
 }
