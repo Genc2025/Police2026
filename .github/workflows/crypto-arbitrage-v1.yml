@@ -31,6 +31,9 @@ jobs:
       - name: Unit tests
         run: pytest -q crypto-arbitrage/tests
 
+      - name: Live EUR market discovery
+        run: python crypto-arbitrage/market_probe.py --assets BTC ETH SOL XRP ADA LINK
+
       - name: Realtime WebSocket smoke test
         run: python crypto-arbitrage/realtime.py --seconds 12
 
