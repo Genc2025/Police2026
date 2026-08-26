@@ -43,7 +43,7 @@ jobs:
       - name: Run BTC ETH SOL contrarian futures paper engine for 5h40m
         env:
           FUTURES_RUNTIME_SECONDS: '20400'
-          FUTURES_SAVE_INTERVAL_SECONDS: '30'
+          FUTURES_SAVE_INTERVAL_SECONDS: '10'
           FUTURES_TAKER_FEE: '0.0005'
           FUTURES_ENTRY_LATENCY: '0.120'
           FUTURES_EXIT_LATENCY: '0.100'
