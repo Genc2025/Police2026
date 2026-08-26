@@ -31,8 +31,8 @@ jobs:
       - name: Unit tests
         run: pytest -q crypto-arbitrage/tests
 
-      - name: Live public-market paper snapshot
-        run: python crypto-arbitrage/scanner.py --once
+      - name: Live public-market paper sample
+        run: python crypto-arbitrage/scanner.py --cycles 10
 
       - name: Paper report
         run: python crypto-arbitrage/report.py | tee crypto-arbitrage/paper-report.txt
