@@ -2,56 +2,109 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="dark">
-<title>Adaptive Futures Paper Lab</title>
+<title>Browser Futures Paper Lab</title>
 <style>
-:root{--bg:#071018;--panel:#0d1924;--line:#213345;--text:#ecf4fa;--muted:#8fa5b7;--green:#44d18d;--red:#ff6f7d;--yellow:#f2c94c}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}.wrap{max-width:1100px;margin:auto;padding:14px}.top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}.title{font-size:24px;font-weight:780}.sub{color:var(--muted);font-size:12px;line-height:1.45;margin-top:4px}.pill{border:1px solid var(--line);border-radius:999px;padding:7px 10px;font-size:11px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0}.card,.panel{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:11px}.k{font-size:10px;color:var(--muted);text-transform:uppercase}.v{font-size:19px;font-weight:760;margin-top:5px}.green{color:var(--green)}.red{color:var(--red)}.yellow{color:var(--yellow)}h2{font-size:15px;margin:15px 0 7px}.coins{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.coin{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:10px}.coin h3{margin:0 0 7px;font-size:14px}.row{display:flex;justify-content:space-between;gap:8px;font-size:11px;padding:3px 0}.row span:first-child{color:var(--muted)}.sep{border-top:1px solid var(--line);margin:6px 0 4px}.live{font-variant-numeric:tabular-nums}.tablebox{border:1px solid var(--line);border-radius:12px;overflow:auto;background:var(--panel)}table{border-collapse:collapse;width:100%;min-width:760px}th,td{padding:8px 9px;border-bottom:1px solid var(--line);font-size:11px;text-align:left;white-space:nowrap}th{color:var(--muted);font-size:9px;text-transform:uppercase}.note{color:var(--muted);font-size:10px;line-height:1.5;margin-top:12px}.btn{color:var(--text);text-decoration:none;border:1px solid var(--line);border-radius:9px;padding:7px 9px;font-size:11px}@media(max-width:760px){.wrap{padding:8px}.title{font-size:19px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.coins{grid-template-columns:1fr}.card{padding:8px}.v{font-size:16px}h2{font-size:14px;margin-top:12px}.tablebox table{min-width:620px}}
+:root{--bg:#071018;--panel:#0d1924;--line:#213345;--text:#ecf4fa;--muted:#8fa5b7;--green:#44d18d;--red:#ff6f7d;--yellow:#f2c94c}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}.wrap{max-width:1100px;margin:auto;padding:12px}.top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}.title{font-size:22px;font-weight:800}.sub,.note{color:var(--muted);font-size:11px;line-height:1.45}.actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.pill,.btn{border:1px solid var(--line);border-radius:9px;padding:7px 9px;font-size:11px;background:transparent;color:var(--text)}.btn{cursor:pointer}.danger{border-color:#63333a}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:12px 0}.card,.panel,.coin{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:10px}.k{font-size:9px;color:var(--muted);text-transform:uppercase}.v{font-size:18px;font-weight:780;margin-top:4px}.green{color:var(--green)}.red{color:var(--red)}.yellow{color:var(--yellow)}h2{font-size:14px;margin:13px 0 7px}.coins{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.coin h3{margin:0 0 7px;font-size:14px}.row{display:flex;justify-content:space-between;gap:8px;font-size:11px;padding:3px 0}.row span:first-child{color:var(--muted)}.sep{border-top:1px solid var(--line);margin:6px 0}.live{font-variant-numeric:tabular-nums}.tablebox{border:1px solid var(--line);border-radius:12px;overflow:auto;background:var(--panel)}table{border-collapse:collapse;width:100%;min-width:820px}th,td{padding:8px 9px;border-bottom:1px solid var(--line);font-size:10px;text-align:left;white-space:nowrap}th{color:var(--muted);font-size:9px;text-transform:uppercase}.note{margin-top:10px}.mode{font-weight:750}@media(max-width:760px){.wrap{padding:8px}.title{font-size:18px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.coins{grid-template-columns:1fr}.card,.coin{padding:8px}.v{font-size:16px}.tablebox table{min-width:760px}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="top">
-    <div><div class="title">Adaptive Futures Paper Lab</div><div class="sub">Binance USDⓈ-M Futures • BTCUSDT / ETHUSDT / SOLUSDT • live browser market feed + persistent GitHub paper engine</div></div>
-    <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap"><span id="feed" class="pill yellow">Futures feed: connecting…</span><span id="updated" class="pill">Server snapshot: —</span><a class="btn" href="./">Main arbitrage</a></div>
+    <div><div class="title">Browser Futures Paper Lab</div><div class="sub">Binance USDⓈ-M Futures • BTCUSDT / ETHUSDT / SOLUSDT • execution happens inside this Safari tab • paper only</div></div>
+    <div class="actions"><span id="engine" class="pill yellow">Engine: connecting…</span><button id="reset" class="btn danger">Reset to 100 USDT</button><a class="btn" href="./" style="text-decoration:none">Main arbitrage</a></div>
   </div>
+
   <div class="grid">
-    <div class="card"><div class="k">Paper balance</div><div id="balance" class="v">—</div></div>
-    <div class="card"><div class="k">Equity</div><div id="equity" class="v">—</div></div>
-    <div class="card"><div class="k">Net P&amp;L</div><div id="pnl" class="v">—</div></div>
-    <div class="card"><div class="k">Wins / losses</div><div id="wl" class="v">—</div></div>
-    <div class="card"><div class="k">Signals / opened / closed</div><div id="activity" class="v">—</div></div>
-    <div class="card"><div class="k">Current runner cycle</div><div id="clock" class="v">—</div></div>
+    <div class="card"><div class="k">Local balance</div><div id="balance" class="v">100.0000</div></div>
+    <div class="card"><div class="k">Live equity</div><div id="equity" class="v">100.0000</div></div>
+    <div class="card"><div class="k">Net P&L</div><div id="pnl" class="v">0.0000</div></div>
+    <div class="card"><div class="k">Wins / losses</div><div id="wl" class="v">0 / 0</div></div>
+    <div class="card"><div class="k">Signals / opened</div><div id="activity" class="v">0 / 0</div></div>
+    <div class="card"><div class="k">Open positions</div><div id="openCount" class="v">0 / 3</div></div>
+    <div class="card"><div class="k">Browser runtime</div><div id="runtime" class="v">00:00:00</div></div>
+    <div class="card"><div class="k">Strategy</div><div class="v mode">CONTRARIAN</div></div>
   </div>
-  <h2>BTC / ETH / SOL — live Futures + server model</h2>
-  <div id="coins" class="coins">
-    <div class="coin" data-symbol="BTCUSDT"><h3>BTCUSDT</h3><div class="row"><span>LIVE bid</span><b id="BTCUSDT-bid" class="live">—</b></div><div class="row"><span>LIVE ask</span><b id="BTCUSDT-ask" class="live">—</b></div><div class="row"><span>LIVE mid</span><b id="BTCUSDT-mid" class="live">—</b></div><div class="row"><span>LIVE 1s move</span><b id="BTCUSDT-move" class="live">—</b></div><div class="sep"></div><div class="row"><span>Server score</span><b id="BTCUSDT-score">—</b></div><div class="row"><span>Confidence</span><b id="BTCUSDT-conf">—</b></div><div class="row"><span>Pred. edge</span><b id="BTCUSDT-edge">—</b></div><div class="row"><span>Regime</span><b id="BTCUSDT-regime">—</b></div></div>
-    <div class="coin" data-symbol="ETHUSDT"><h3>ETHUSDT</h3><div class="row"><span>LIVE bid</span><b id="ETHUSDT-bid" class="live">—</b></div><div class="row"><span>LIVE ask</span><b id="ETHUSDT-ask" class="live">—</b></div><div class="row"><span>LIVE mid</span><b id="ETHUSDT-mid" class="live">—</b></div><div class="row"><span>LIVE 1s move</span><b id="ETHUSDT-move" class="live">—</b></div><div class="sep"></div><div class="row"><span>Server score</span><b id="ETHUSDT-score">—</b></div><div class="row"><span>Confidence</span><b id="ETHUSDT-conf">—</b></div><div class="row"><span>Pred. edge</span><b id="ETHUSDT-edge">—</b></div><div class="row"><span>Regime</span><b id="ETHUSDT-regime">—</b></div></div>
-    <div class="coin" data-symbol="SOLUSDT"><h3>SOLUSDT</h3><div class="row"><span>LIVE bid</span><b id="SOLUSDT-bid" class="live">—</b></div><div class="row"><span>LIVE ask</span><b id="SOLUSDT-ask" class="live">—</b></div><div class="row"><span>LIVE mid</span><b id="SOLUSDT-mid" class="live">—</b></div><div class="row"><span>LIVE 1s move</span><b id="SOLUSDT-move" class="live">—</b></div><div class="sep"></div><div class="row"><span>Server score</span><b id="SOLUSDT-score">—</b></div><div class="row"><span>Confidence</span><b id="SOLUSDT-conf">—</b></div><div class="row"><span>Pred. edge</span><b id="SOLUSDT-edge">—</b></div><div class="row"><span>Regime</span><b id="SOLUSDT-regime">—</b></div></div>
-  </div>
-  <h2>Open paper positions</h2><div id="positions" class="panel">None</div>
+
+  <h2>Live Futures microstructure</h2>
+  <div class="coins" id="coins"></div>
+
+  <h2>Open paper positions</h2>
+  <div id="positions" class="panel">None</div>
+
   <h2>Closed paper trades</h2>
-  <div class="tablebox"><table><thead><tr><th>Time</th><th>Coin</th><th>Side</th><th>Entry</th><th>Exit</th><th>Net</th><th>Held</th><th>Reason</th><th>Result</th></tr></thead><tbody id="history"></tbody></table></div>
-  <div class="note"><strong>LIVE bid/ask/mid/1s move</strong> come directly from Binance Futures WebSocket while this page is open and can change many times per second. <strong>Server score, positions, balance and trade history</strong> come from the persistent GitHub runner snapshot, normally written about every 30 seconds. Refreshing the page does not reset the paper wallet.</div>
+  <div class="tablebox"><table><thead><tr><th>Time</th><th>Coin</th><th>Side</th><th>Entry</th><th>Exit</th><th>Gross</th><th>Fees</th><th>Net</th><th>Held</th><th>Reason</th><th>Result</th></tr></thead><tbody id="history"></tbody></table></div>
+
+  <div class="note"><strong>Important:</strong> this is a foreground browser experiment. If Safari is backgrounded, the phone locks, or iOS suspends the tab, the engine may pause. It resumes from localStorage when the page is active again. No real order is sent. Modeled taker fee is 0.05% per side; fills use live bid/ask after 120 ms entry and 100 ms exit latency.</div>
 </div>
 <script>
-const STATE_URL='https://raw.githubusercontent.com/Genc2025/Police2026/claude/html-demo-rn-app-jz85o7/crypto-arbitrage/futures_state.json';
+(() => {
+'use strict';
 const SYMBOLS=['BTCUSDT','ETHUSDT','SOLUSDT'];
-let state=null, ws=null;
-const live={}, anchor={};
-const $=id=>document.getElementById(id), num=(x,p=4)=>Number.isFinite(+x)?(+x).toFixed(p):'—';
-function cls(n){return +n>0?'green':+n<0?'red':''}
-function fmtPx(x){if(!Number.isFinite(+x))return '—'; const n=+x; return n>=1000?n.toFixed(2):n>=10?n.toFixed(3):n.toFixed(5)}
-function paintLive(s){const d=live[s];if(!d)return;$(s+'-bid').textContent=fmtPx(d.bid);$(s+'-ask').textContent=fmtPx(d.ask);$(s+'-mid').textContent=fmtPx(d.mid);const a=anchor[s];const mv=a&&a>0?(d.mid/a-1)*100:0;const el=$(s+'-move');el.textContent=(mv>=0?'+':'')+mv.toFixed(4)+'%';el.className='live '+cls(mv)}
-function renderServer(){if(!state)return;const bal=+state.balance||100,eq=Number.isFinite(+state.equity)?+state.equity:bal,pnl=eq-(+state.initial_balance||100);$('balance').textContent=num(bal)+' USDT';$('equity').textContent=num(eq)+' USDT';$('pnl').textContent=(pnl>=0?'+':'')+num(pnl)+' USDT';$('pnl').className='v '+cls(pnl);$('wl').textContent=(state.wins||0)+' / '+(state.losses||0);$('activity').textContent=(state.signals||0)+' / '+(state.opened||0)+' / '+(state.closed||0);paintServerAge();
- const latest=state.latest||{};for(const s of SYMBOLS){const d=latest[s]||{},score=+d.score||0;const se=$(s+'-score');se.textContent=(score>=0?'+':'')+num(score,3);se.className=cls(score);$(s+'-conf').textContent=num((+d.confidence||0)*100,1)+'%';$(s+'-edge').textContent=num(+d.predicted_edge_pct||0,4)+'%';$(s+'-regime').textContent=d.regime||'—'}
- const ps=state.positions||{},keys=Object.keys(ps);$('positions').innerHTML=keys.length?keys.map(s=>{const p=ps[s];return `<div class="row"><span>${s} ${p.side} • ${p.entry_mode||'STRICT'}</span><b>entry ${fmtPx(p.entry_price)} • ${num(p.notional,2)} USDT</b></div>`}).join(''):'None';
- const h=Array.isArray(state.history)?state.history:[];$('history').innerHTML=h.length?h.slice(0,100).map(x=>`<tr><td>${new Date(x.time).toLocaleTimeString()}</td><td>${x.symbol}</td><td>${x.side}</td><td>${fmtPx(x.entry_price)}</td><td>${fmtPx(x.exit_price)}</td><td class="${cls(x.net_pnl)}">${+x.net_pnl>=0?'+':''}${num(x.net_pnl,4)}</td><td>${num(x.held_seconds,1)}s</td><td>${x.reason}</td><td>${x.status}</td></tr>`).join(''):'<tr><td colspan="9">No closed trades yet.</td></tr>';paintClock()}
-function paintServerAge(){if(!state)return;const u=Date.parse(state.updated_at||'');if(!Number.isFinite(u)){$('updated').textContent='Server snapshot: —';return}const age=Math.max(0,Math.floor((Date.now()-u)/1000));$('updated').textContent='Server: '+new Date(u).toLocaleTimeString()+' • '+age+'s ago';$('updated').className='pill '+(age<75?'green':age<180?'yellow':'red')}
-function paintClock(){if(!state)return;const t=Date.parse(state.run_started_at||'');if(!Number.isFinite(t)){$('clock').textContent='—';return}const sec=Math.max(0,Math.min(21600,Math.floor((Date.now()-t)/1000))),h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),ss=sec%60;$('clock').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0')+' / 06:00'}
-async function loadState(){try{const r=await fetch(STATE_URL+'?t='+Date.now(),{cache:'no-store'});if(r.ok){state=await r.json();renderServer()}}catch(e){}}
-function connectLive(){const streams=SYMBOLS.map(s=>s.toLowerCase()+'@bookTicker').join('/');ws=new WebSocket('wss://fstream.binance.com/stream?streams='+streams);ws.onopen=()=>{$('feed').textContent='Futures feed: LIVE';$('feed').className='pill green'};ws.onmessage=e=>{try{const m=JSON.parse(e.data),d=m.data||m,s=String(d.s||'').toUpperCase();if(!SYMBOLS.includes(s))return;const bid=+d.b,ask=+d.a;if(!(bid>0&&ask>bid))return;live[s]={bid,ask,mid:(bid+ask)/2,t:Date.now()};if(!anchor[s])anchor[s]=live[s].mid;paintLive(s)}catch(err){}};ws.onclose=()=>{$('feed').textContent='Futures feed: reconnecting…';$('feed').className='pill yellow';setTimeout(connectLive,1500)};ws.onerror=()=>{try{ws.close()}catch(e){}}}
-setInterval(()=>{for(const s of SYMBOLS)if(live[s])anchor[s]=live[s].mid},1000);
-loadState();connectLive();setInterval(loadState,5000);setInterval(()=>{paintClock();paintServerAge()},1000);
+const STORAGE='futures-browser-paper-v1';
+const FEE=0.0005, ENTRY_LATENCY=120, EXIT_LATENCY=100;
+const MAX_HOLD=90000, MIN_HOLD=8000, COOLDOWN=3500;
+const MIN_SCORE=0.45, MIN_CONF=0.63, MIN_EDGE=0.00005, MAX_SPREAD=0.00045;
+const FEATURES=['book','micro','flow1','flow5','mom05','mom2','mom5','basis'];
+const DEFAULT_W={book:0.95,micro:0.90,flow1:1.15,flow5:0.90,mom05:0.80,mom2:1.00,mom5:0.75,basis:-0.30};
+const weights=Object.fromEntries(SYMBOLS.map(s=>[s,{...DEFAULT_W}]));
+const books={}, marks={}, midHist=Object.fromEntries(SYMBOLS.map(s=>[s,[]])), tradeHist=Object.fromEntries(SYMBOLS.map(s=>[s,[]]));
+const latest={}, pendingEntry={}, pendingClose={}, cooldownUntil={BTCUSDT:0,ETHUSDT:0,SOLUSDT:0};
+let ws=null, runStarted=Date.now(), lastMessage=0;
+
+const $=id=>document.getElementById(id);
+const clamp=(x,a=-1,b=1)=>Math.max(a,Math.min(b,x));
+const sigmoid=x=>1/(1+Math.exp(-x));
+const fmt=(x,p=4)=>Number.isFinite(+x)?(+x).toFixed(p):'—';
+const fmtPx=x=>!Number.isFinite(+x)?'—':(+x>=1000?+x.toFixed(2):+x>=10?+x.toFixed(3):+x.toFixed(5));
+const cls=x=>+x>0?'green':+x<0?'red':'';
+
+function freshState(){return {initialBalance:100,balance:100,wins:0,losses:0,signals:0,opened:0,closed:0,positions:{},history:[],savedAt:Date.now()}}
+function loadState(){try{const x=JSON.parse(localStorage.getItem(STORAGE)||'null');if(x&&Number.isFinite(+x.balance)){x.positions=x.positions||{};x.history=Array.isArray(x.history)?x.history:[];return x}}catch(e){}return freshState()}
+let state=loadState();
+function save(){state.savedAt=Date.now();try{localStorage.setItem(STORAGE,JSON.stringify(state))}catch(e){}}
+
+function oldPrice(s,sec,now){const target=now-sec*1000,h=midHist[s];let out=null;for(let i=h.length-1;i>=0;i--){if(h[i][0]<=target){out=h[i][1];break}}return out}
+function ret(s,sec,now,mid){const p=oldPrice(s,sec,now);return p&&p>0?mid/p-1:0}
+function flow(s,sec,now){let signed=0,total=0;const h=tradeHist[s],cut=now-sec*1000;for(let i=h.length-1;i>=0;i--){const r=h[i];if(r[0]<cut)break;signed+=r[1];total+=Math.abs(r[1])}return total?signed/total:0}
+function realizedVol(s,now){const h=midHist[s].filter(r=>now-r[0]<=10000);const sample=[];let last=-1e9;for(const r of h){if(r[0]-last>=350){sample.push(r);last=r[0]}}if(sample.length<5)return 0.00030;const rs=[];for(let i=1;i<sample.length;i++)rs.push(Math.log(sample[i][1]/sample[i-1][1]));const m=rs.reduce((a,b)=>a+b,0)/rs.length;const v=rs.reduce((a,b)=>a+(b-m)*(b-m),0)/rs.length;return Math.max(0.00007,Math.sqrt(v))}
+
+function analyze(s){const b=books[s];if(!b)return null;const now=Date.now(),mid=(b.bid+b.ask)/2,spread=(b.ask-b.bid)/mid;if(!(mid>0&&spread>0&&spread<=MAX_SPREAD))return null;const q=b.bidQty+b.askQty;const imbalance=q?(b.bidQty-b.askQty)/q:0;const micro=q?(b.ask*b.bidQty+b.bid*b.askQty)/q:mid;const half=Math.max((b.ask-b.bid)/2,mid*1e-8);const vol=realizedVol(s,now);const basis=marks[s]&&marks[s]>0?mid/marks[s]-1:0;
+ const f={book:clamp(imbalance),micro:clamp((micro-mid)/half),flow1:clamp(flow(s,1,now)),flow5:clamp(flow(s,5,now)),mom05:Math.tanh(ret(s,.5,now,mid)/Math.max(vol*.9,.00008)),mom2:Math.tanh(ret(s,2,now,mid)/Math.max(vol*1.8,.00016)),mom5:Math.tanh(ret(s,5,now,mid)/Math.max(vol*3,.00028)),basis:Math.tanh(basis/.00045)};
+ const trend=f.mom2*f.flow1>0&&Math.abs(f.mom2)>.25&&Math.abs(f.flow1)>.18;const shock=Math.abs(ret(s,.5,now,mid))>Math.max(vol*2.6,.00035)&&Math.abs(f.flow1)<.35;const regime=shock?'mean_revert':trend?'trend':'mixed';
+ const w=weights[s],den=FEATURES.reduce((z,k)=>z+Math.abs(w[k]),0)||1;const score=clamp(FEATURES.reduce((z,k)=>z+w[k]*f[k],0)/den);const confidence=sigmoid((Math.abs(score)-.38)*8);const r05=Math.abs(ret(s,.5,now,mid)),r2=Math.abs(ret(s,2,now,mid));const edge=Math.abs(score)*Math.max(vol*2.7,r05*.9,r2*.55);return {s,now,mid,spread,vol,f,score,confidence,edge,regime}}
+
+function qualifies(a){if(!a)return false;const over=Math.max(Math.abs(a.f.mom05),Math.abs(a.f.mom2));const pressure=Math.max(Math.abs(a.f.book),Math.abs(a.f.micro));return Math.abs(a.score)>=MIN_SCORE&&a.confidence>=MIN_CONF&&a.edge>=MIN_EDGE&&over>=.45&&pressure>=.35&&a.regime!=='trend'}
+function sideFor(a){return a.score>0?'SHORT':'LONG'}
+
+function unrealizedOne(s,p){const b=books[s];if(!b)return 0;const px=p.side==='LONG'?b.bid:b.ask;const gross=p.side==='LONG'?p.qty*(px-p.entry):p.qty*(p.entry-px);return gross-p.entryFee-p.qty*px*FEE}
+function equity(){let e=state.balance;for(const [s,p] of Object.entries(state.positions))e+=unrealizedOne(s,p);return e}
+
+function maybeOpen(s,a){if(!qualifies(a)||state.positions[s]||pendingEntry[s]||Date.now()<(cooldownUntil[s]||0)||Object.keys(state.positions).length>=3)return;state.signals++;pendingEntry[s]=true;save();const originalSign=Math.sign(a.score);setTimeout(()=>{pendingEntry[s]=false;const a2=analyze(s),b=books[s];if(!a2||!b||!qualifies(a2)||Math.sign(a2.score)!==originalSign||state.positions[s])return;const side=sideFor(a2),eq=Math.max(1,equity()),notional=eq/3,entry=side==='LONG'?b.ask:b.bid,available=side==='LONG'?b.askQty:b.bidQty,qty=notional/entry;if(!(qty>0&&qty<=available))return;const roundTrip=2*FEE+a2.spread;const target=Math.max(roundTrip*1.18,.00135,Math.min(.0045,a2.vol*4.5));const stop=Math.max(.0010,Math.min(.0030,a2.vol*3.0));state.positions[s]={side,entry,qty,notional,entryFee:qty*entry*FEE,openedAt:Date.now(),score:a2.score,confidence:a2.confidence,target,stop,regime:a2.regime,modelSide:a2.score>0?'LONG':'SHORT'};state.opened++;save()},ENTRY_LATENCY)}
+
+function requestClose(s,reason){if(pendingClose[s]||!state.positions[s])return;pendingClose[s]=true;setTimeout(()=>{pendingClose[s]=false;const p=state.positions[s],b=books[s];if(!p||!b)return;const exit=p.side==='LONG'?b.bid:b.ask;const gross=p.side==='LONG'?p.qty*(exit-p.entry):p.qty*(p.entry-exit);const exitFee=p.qty*exit*FEE,fees=p.entryFee+exitFee,net=gross-fees;state.balance+=net;state.closed++;if(net>0)state.wins++;else state.losses++;state.history.unshift({time:Date.now(),symbol:s,side:p.side,modelSide:p.modelSide,entry:p.entry,exit,gross,fees,net,held:(Date.now()-p.openedAt)/1000,reason,status:net>0?'WIN':'LOSS',balance:state.balance});state.history=state.history.slice(0,300);delete state.positions[s];cooldownUntil[s]=Date.now()+COOLDOWN;save()},EXIT_LATENCY)}
+
+function manage(s,a){const p=state.positions[s];if(!p){maybeOpen(s,a);return}const b=books[s];if(!b||!a)return;const held=Date.now()-p.openedAt;const move=p.side==='LONG'?b.bid/p.entry-1:p.entry/b.ask-1;const reversal=p.side==='LONG'?a.score>.55:a.score<-.55;if(move>=p.target)requestClose(s,'TARGET');else if(move<=-p.stop)requestClose(s,'STOP');else if(held>=MIN_HOLD&&reversal)requestClose(s,'CONTRARIAN_REVERSAL');else if(held>=MAX_HOLD)requestClose(s,'TIME_STOP')}
+
+function tick(){for(const s of SYMBOLS){const a=analyze(s);if(a){latest[s]=a;manage(s,a)}}render()}
+
+function cardHTML(s){return `<div class="coin"><h3>${s}</h3><div class="row"><span>Bid / Ask</span><b class="live" id="${s}-px">—</b></div><div class="row"><span>Score</span><b id="${s}-score">—</b></div><div class="row"><span>Confidence</span><b id="${s}-conf">—</b></div><div class="row"><span>Pred. edge</span><b id="${s}-edge">—</b></div><div class="row"><span>Regime</span><b id="${s}-regime">—</b></div><div class="sep"></div><div class="row"><span>Book imbalance</span><b id="${s}-book">—</b></div><div class="row"><span>Microprice</span><b id="${s}-micro">—</b></div><div class="row"><span>Flow 1s / 5s</span><b id="${s}-flow">—</b></div><div class="row"><span>Mom .5s / 2s</span><b id="${s}-mom">—</b></div></div>`}
+$('coins').innerHTML=SYMBOLS.map(cardHTML).join('');
+
+function render(){const eq=equity(),pnl=eq-state.initialBalance;$('balance').textContent=fmt(state.balance)+' USDT';$('equity').textContent=fmt(eq)+' USDT';$('pnl').textContent=(pnl>=0?'+':'')+fmt(pnl)+' USDT';$('pnl').className='v '+cls(pnl);$('wl').textContent=state.wins+' / '+state.losses;$('activity').textContent=state.signals+' / '+state.opened;$('openCount').textContent=Object.keys(state.positions).length+' / 3';
+ for(const s of SYMBOLS){const b=books[s],a=latest[s];if(b)$(s+'-px').textContent=fmtPx(b.bid)+' / '+fmtPx(b.ask);if(a){const se=$(s+'-score');se.textContent=(a.score>=0?'+':'')+fmt(a.score,3);se.className=cls(a.score);$(s+'-conf').textContent=fmt(a.confidence*100,1)+'%';$(s+'-edge').textContent=fmt(a.edge*100,4)+'%';$(s+'-regime').textContent=a.regime;$(s+'-book').textContent=fmt(a.f.book,3);$(s+'-micro').textContent=fmt(a.f.micro,3);$(s+'-flow').textContent=fmt(a.f.flow1,2)+' / '+fmt(a.f.flow5,2);$(s+'-mom').textContent=fmt(a.f.mom05,2)+' / '+fmt(a.f.mom2,2)}}
+ const ps=Object.entries(state.positions);$('positions').innerHTML=ps.length?ps.map(([s,p])=>{const u=unrealizedOne(s,p);return `<div class="row"><span>${s} ${p.side} • model ${p.modelSide}</span><b class="${cls(u)}">entry ${fmtPx(p.entry)} • ${u>=0?'+':''}${fmt(u)} USDT • ${fmt((Date.now()-p.openedAt)/1000,1)}s</b></div>`}).join(''):'None';
+ $('history').innerHTML=state.history.length?state.history.slice(0,120).map(x=>`<tr><td>${new Date(x.time).toLocaleTimeString()}</td><td>${x.symbol}</td><td>${x.side}</td><td>${fmtPx(x.entry)}</td><td>${fmtPx(x.exit)}</td><td>${x.gross>=0?'+':''}${fmt(x.gross)}</td><td>${fmt(x.fees)}</td><td class="${cls(x.net)}">${x.net>=0?'+':''}${fmt(x.net)}</td><td>${fmt(x.held,1)}s</td><td>${x.reason}</td><td class="${x.status==='WIN'?'green':'red'}">${x.status}</td></tr>`).join(''):'<tr><td colspan="11">No closed browser trades yet.</td></tr>';
+ const sec=Math.floor((Date.now()-runStarted)/1000),h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),ss=sec%60;$('runtime').textContent=[h,m,ss].map(x=>String(x).padStart(2,'0')).join(':');const live=Date.now()-lastMessage<3000&&ws&&ws.readyState===1&&document.visibilityState==='visible';$('engine').textContent=live?'Engine: LIVE':'Engine: PAUSED / reconnecting';$('engine').className='pill '+(live?'green':'yellow')}
+
+function connect(){if(ws&&ws.readyState<2)return;const streams=[];for(const s of SYMBOLS){const x=s.toLowerCase();streams.push(x+'@bookTicker',x+'@aggTrade',x+'@markPrice@1s')}ws=new WebSocket('wss://fstream.binance.com/stream?streams='+streams.join('/'));ws.onmessage=e=>{lastMessage=Date.now();try{const m=JSON.parse(e.data),d=m.data||m,s=String(d.s||'').toUpperCase();if(!SYMBOLS.includes(s))return;if(d.e==='aggTrade'){const q=+d.q;if(q>0){tradeHist[s].push([Date.now(),d.m?-q:q]);const cut=Date.now()-10000;while(tradeHist[s].length&&tradeHist[s][0][0]<cut)tradeHist[s].shift()}}else if(d.e==='markPriceUpdate'){const p=+d.p;if(p>0)marks[s]=p}else if(d.b&&d.a){const bid=+d.b,ask=+d.a,bq=+d.B,aq=+d.A;if(bid>0&&ask>bid&&bq>=0&&aq>=0){books[s]={bid,ask,bidQty:bq,askQty:aq,t:Date.now()};const mid=(bid+ask)/2;midHist[s].push([Date.now(),mid]);const cut=Date.now()-15000;while(midHist[s].length&&midHist[s][0][0]<cut)midHist[s].shift()}}}catch(err){}};ws.onclose=()=>setTimeout(connect,1200);ws.onerror=()=>{try{ws.close()}catch(e){}}}
+
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){runStarted=Date.now();connect()}});
+$('reset').onclick=()=>{if(!confirm('Reset browser paper wallet and history to 100 USDT?'))return;state=freshState();for(const k of Object.keys(pendingEntry))delete pendingEntry[k];for(const k of Object.keys(pendingClose))delete pendingClose[k];save();render()};
+window.addEventListener('beforeunload',save);
+connect();setInterval(tick,120);setInterval(render,250);setInterval(save,1500);render();
+})();
 </script>
-</body></html>
+</body>
+</html>
