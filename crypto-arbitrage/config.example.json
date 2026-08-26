@@ -13,5 +13,14 @@
     "kraken": 0.40,
     "coinbase": 0.60,
     "bitstamp": 0.30
+  },
+  "triangular": {
+    "start_asset": "EUR",
+    "virtual_capital_eur": 100.0,
+    "fee_pct": 0.10,
+    "slippage_pct_each_leg": 0.05,
+    "safety_buffer_pct": 0.05,
+    "minimum_net_profit_eur": 0.10,
+    "max_market_data_latency_ms": 1500.0
   }
 }
