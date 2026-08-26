@@ -11,10 +11,11 @@ from realtime import RealtimeScanner, parse_binance, parse_coinbase, parse_krake
 
 def config():
     return {
-        "virtual_capital_eur": 100.0,
+        "capital_asset": "USDT",
+        "virtual_capital": 100.0,
         "slippage_pct_each_leg": 0.0,
         "safety_buffer_pct": 0.0,
-        "minimum_net_profit_eur": 0.10,
+        "minimum_net_profit": 0.10,
         "max_quote_latency_ms": 1500.0,
         "max_snapshot_skew_ms": 1000.0,
         "fees_pct": {
@@ -27,43 +28,52 @@ def config():
 
 
 def test_parse_binance_book_ticker():
-    quote = parse_binance({
-        "stream": "btceur@bookTicker",
-        "data": {"s": "BTCEUR", "b": "99.0", "B": "2", "a": "100.0", "A": "3"},
-    })
+    quote = parse_binance(
+        {
+            "stream": "btcusdt@bookTicker",
+            "data": {"s": "BTCUSDT", "b": "99.0", "B": "2", "a": "100.0", "A": "3"},
+        },
+        {"BTCUSDT": "BTC/USDT"},
+    )
     assert quote is not None
     assert quote.exchange == "binance"
-    assert quote.pair == "BTC/EUR"
+    assert quote.pair == "BTC/USDT"
     assert quote.bid == 99.0
     assert quote.ask_qty == 3.0
 
 
 def test_parse_kraken_ticker_snapshot():
-    quotes = parse_kraken({
-        "channel": "ticker",
-        "type": "snapshot",
-        "data": [{
-            "symbol": "ETH/EUR",
-            "bid": 99.0,
-            "bid_qty": 4.0,
-            "ask": 100.0,
-            "ask_qty": 5.0,
-        }],
-    })
+    quotes = parse_kraken(
+        {
+            "channel": "ticker",
+            "type": "snapshot",
+            "data": [{
+                "symbol": "ETH/USDT",
+                "bid": 99.0,
+                "bid_qty": 4.0,
+                "ask": 100.0,
+                "ask_qty": 5.0,
+            }],
+        },
+        {"ETH/USDT"},
+    )
     assert len(quotes) == 1
     assert quotes[0].exchange == "kraken"
-    assert quotes[0].pair == "ETH/EUR"
+    assert quotes[0].pair == "ETH/USDT"
 
 
 def test_parse_coinbase_ticker():
-    quote = parse_coinbase({
-        "type": "ticker",
-        "product_id": "BTC-EUR",
-        "best_bid": "99.0",
-        "best_bid_size": "2.0",
-        "best_ask": "100.0",
-        "best_ask_size": "3.0",
-    })
+    quote = parse_coinbase(
+        {
+            "type": "ticker",
+            "product_id": "BTC-USDT",
+            "best_bid": "99.0",
+            "best_bid_size": "2.0",
+            "best_ask": "100.0",
+            "best_ask_size": "3.0",
+        },
+        {"BTC-USDT": "BTC/USDT"},
+    )
     assert quote is not None
     assert quote.exchange == "coinbase"
     assert quote.bid_qty == 2.0
@@ -72,18 +82,24 @@ def test_parse_coinbase_ticker():
 
 def test_realtime_scanner_evaluates_when_two_fresh_venues_exist():
     scanner = RealtimeScanner(config(), max_age_ms=5000.0)
-    first = parse_binance({"data": {"s": "BTCEUR", "b": "99", "B": "10", "a": "100", "A": "10"}})
-    second = parse_coinbase({
-        "type": "ticker",
-        "product_id": "BTC-EUR",
-        "best_bid": "101",
-        "best_bid_size": "10",
-        "best_ask": "102",
-        "best_ask_size": "10",
-    })
+    first = parse_binance(
+        {"data": {"s": "BTCUSDT", "b": "99", "B": "10", "a": "100", "A": "10"}},
+        {"BTCUSDT": "BTC/USDT"},
+    )
+    second = parse_coinbase(
+        {
+            "type": "ticker",
+            "product_id": "BTC-USDT",
+            "best_bid": "101",
+            "best_bid_size": "10",
+            "best_ask": "102",
+            "best_ask_size": "10",
+        },
+        {"BTC-USDT": "BTC/USDT"},
+    )
     assert first is not None and second is not None
     scanner.ingest(first)
     scanner.ingest(second)
     assert scanner.evaluations >= 1
     assert scanner.paper_opportunities >= 1
-    assert scanner.best_net_eur is not None and scanner.best_net_eur > 0
+    assert scanner.best_net_quote is not None and scanner.best_net_quote > 0
