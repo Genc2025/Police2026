@@ -1,17 +1,37 @@
 {
-  "balance": 96.98260912420687,
-  "closed": 160,
-  "contrarian_losses": 106,
+  "balance": 96.97031438781848,
+  "closed": 161,
+  "contrarian_losses": 107,
   "contrarian_min_confidence": 0.5,
   "contrarian_min_edge_pct": 0.0025,
   "contrarian_min_score": 0.28,
-  "contrarian_opened": 109,
-  "contrarian_signals": 141,
+  "contrarian_opened": 110,
+  "contrarian_signals": 142,
   "entry_latency_ms": 120,
   "entry_policy": "strict_plus_contrarian_v3",
-  "equity": 96.95220767417254,
+  "equity": 96.934212298684,
   "exit_latency_ms": 100,
   "history": [
+    {
+      "balance": 96.97031438781848,
+      "entry_confidence": 0.73772777959141,
+      "entry_mode": "CONTRARIAN",
+      "entry_price": 2465.18,
+      "entry_score": -0.5092739900817541,
+      "exit_price": 2465.77,
+      "fees": 0.01616250027176993,
+      "gross_pnl": 0.003867763883367955,
+      "held_seconds": 23.455443809999906,
+      "model_side": "SHORT",
+      "net_pnl": -0.012294736388401973,
+      "notional": 16.160566389828244,
+      "reason": "CONTRARIAN_REVERSAL",
+      "regime": "mixed",
+      "side": "LONG",
+      "status": "LOSS",
+      "symbol": "ETHUSDT",
+      "time": "2026-08-26T02:32:29.474929+00:00"
+    },
     {
       "balance": 96.98260912420687,
       "entry_confidence": 0.5758429822600998,
@@ -3127,49 +3147,49 @@
   ],
   "initial_balance": 100.0,
   "last_entry_signal": {
-    "confidence": 0.73772777959141,
-    "cost_hurdle_pct": 0.12040565071444273,
+    "confidence": 0.5139708578556141,
+    "cost_hurdle_pct": 0.12040559477430736,
     "mode": "CONTRARIAN",
     "model_side": "SHORT",
-    "predicted_edge_pct": 0.009625278412545152,
-    "score": -0.5092739900817541,
+    "predicted_edge_pct": 0.007314058981780563,
+    "score": -0.3869872477132573,
     "side": "LONG",
     "symbol": "ETHUSDT"
   },
   "last_error": null,
   "latest": {
     "BTCUSDT": {
-      "confidence": 0.2016663554644683,
+      "confidence": 0.37978266518966164,
       "funding": null,
-      "mid": 79107.05,
-      "predicted_edge_pct": 0.003931407935953593,
+      "mid": 79099.35,
+      "predicted_edge_pct": 0.006023262732074107,
       "regime": "mixed",
-      "score": 0.2080110019023065,
-      "spread_pct": 0.0001264109836049009,
-      "time": "2026-08-26T02:32:08.529306+00:00"
+      "score": -0.31869114984519087,
+      "spread_pct": 0.0001264232891816037,
+      "time": "2026-08-26T02:32:39.753224+00:00"
     },
     "ETHUSDT": {
-      "confidence": 0.6145306153327798,
+      "confidence": 0.13172038455246307,
       "funding": null,
-      "mid": 2465.605,
-      "predicted_edge_pct": 0.008283862857348013,
+      "mid": 2465.5150000000003,
+      "predicted_edge_pct": 0.002726720899659408,
       "regime": "mixed",
-      "score": 0.43829962208190554,
-      "spread_pct": 0.0004055799692253333,
-      "time": "2026-08-26T02:32:29.319057+00:00"
+      "score": -0.14427094707192636,
+      "spread_pct": 0.0004055947743073366,
+      "time": "2026-08-26T02:32:40.455034+00:00"
     },
     "SOLUSDT": {
-      "confidence": 0.11936674242506953,
+      "confidence": 0.050737874964344384,
       "funding": null,
-      "mid": 97.315,
-      "predicted_edge_pct": 0.0024606839961474423,
+      "mid": 97.32499999999999,
+      "predicted_edge_pct": 0.0002622084415052279,
       "regime": "mixed",
-      "score": 0.1301949204310816,
-      "spread_pct": 0.010275908133371942,
-      "time": "2026-08-26T02:32:29.320705+00:00"
+      "score": -0.01387346251350412,
+      "spread_pct": 0.01027485229900346,
+      "time": "2026-08-26T02:32:40.456262+00:00"
     }
   },
-  "losses": 160,
+  "losses": 161,
   "math_model": "online_ensemble_microprice_flow_regime_v1",
   "max_concurrent_positions": 3,
   "max_hold_seconds": 90.0,
@@ -3205,7 +3225,7 @@
       "mom5": 0.75
     }
   },
-  "opened": 165,
+  "opened": 166,
   "paper_leverage": 1.0,
   "positions": {
     "BTCUSDT": {
@@ -3235,26 +3255,26 @@
       "target_pct": 0.00135
     },
     "ETHUSDT": {
-      "entry_confidence": 0.73772777959141,
-      "entry_fee": 0.008080283194914122,
+      "entry_confidence": 0.5139708578556141,
+      "entry_fee": 0.008079306758530025,
       "entry_mode": "CONTRARIAN",
-      "entry_price": 2465.18,
-      "entry_score": -0.5092739900817541,
+      "entry_price": 2465.52,
+      "entry_score": -0.3869872477132573,
       "features": {
         "basis": 0.0,
-        "book": -0.9667321597652484,
+        "book": -0.9147557301338415,
         "flow1": 0.0,
         "flow5": 0.0,
-        "micro": -0.9667321598727858,
-        "mom05": -0.5063022842923021,
-        "mom2": -0.594411612013297,
-        "mom5": -0.8662553305896113
+        "micro": -0.9147557301946869,
+        "mom05": -0.5777353470214281,
+        "mom2": -0.3180969407874429,
+        "mom5": -0.18610747047671142
       },
       "model_side": "SHORT",
-      "notional": 16.160566389828244,
-      "opened_at": "2026-08-26T02:32:06.019476+00:00",
-      "opened_mono": 2449.447034398,
-      "qty": 0.006555532005706782,
+      "notional": 16.15861351706005,
+      "opened_at": "2026-08-26T02:32:36.820342+00:00",
+      "opened_mono": 2480.247901076,
+      "qty": 0.006553835911718441,
       "regime": "mixed",
       "side": "LONG",
       "stop_pct": 0.001,
@@ -3289,7 +3309,7 @@
   },
   "run_started_at": "2026-08-26T01:56:50.053697+00:00",
   "run_status": "running",
-  "signals": 209,
+  "signals": 210,
   "strategy": "adaptive_binance_futures_microstructure",
   "symbols": [
     "BTCUSDT",
@@ -3297,8 +3317,8 @@
     "SOLUSDT"
   ],
   "taker_fee_assumption": 0.0005,
-  "unrealized_pnl": -0.03040145003433281,
-  "updated_at": "2026-08-26T02:32:29.333742+00:00",
+  "unrealized_pnl": -0.03610208913447366,
+  "updated_at": "2026-08-26T02:32:40.490867+00:00",
   "version": 1,
   "wins": 0
 }
