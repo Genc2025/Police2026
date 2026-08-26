@@ -15,7 +15,7 @@ permissions:
 
 concurrency:
   group: crypto-paper-6h
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   paper:
@@ -31,12 +31,21 @@ jobs:
           python-version: '3.12'
       - name: Install websocket client
         run: python -m pip install 'websockets>=14,<16'
+      - name: Validate premium paper engine
+        run: python -m py_compile crypto-arbitrage/headless_runner.py
       - name: Configure state commits
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      - name: Run strict paper engine for 5h40m
+      - name: Run premium paper engine for 5h40m
         env:
           PAPER_RUNTIME_SECONDS: '20400'
           PAPER_SAVE_INTERVAL_SECONDS: '900'
+          BIN_TAKER_FEE: '0.001'
+          PAPER_MIN_SIGNAL: '0.01'
+          PAPER_MIN_FILL: '0.005'
+          PAPER_EXEC_DELAY: '0.350'
+          PAPER_LEG_DELAY: '0.075'
+          PAPER_MAX_QUOTE_AGE: '0.75'
+          PAPER_MAX_SNAPSHOT_SKEW: '0.35'
         run: python crypto-arbitrage/headless_runner.py
