@@ -46,6 +46,21 @@ jobs:
       - name: Combined USDT paper report
         run: python crypto-arbitrage/report.py | tee crypto-arbitrage/paper-report.txt
 
+      - name: Dashboard API and UI smoke test
+        run: |
+          python crypto-arbitrage/dashboard_server.py --host 127.0.0.1 --port 8080 > /tmp/arbitrage-dashboard.log 2>&1 &
+          DASH_PID=$!
+          trap 'kill $DASH_PID || true' EXIT
+          for i in {1..20}; do
+            if curl -fsS http://127.0.0.1:8080/api/summary > /tmp/summary.json; then break; fi
+            sleep 0.25
+          done
+          grep -q '"mode":"PAPER"' /tmp/summary.json
+          grep -q '"capital_asset":"USDT"' /tmp/summary.json
+          curl -fsS http://127.0.0.1:8080/api/trades?limit=20 > /tmp/trades.json
+          curl -fsS http://127.0.0.1:8080/api/opportunities?limit=20 > /tmp/opportunities.json
+          curl -fsS http://127.0.0.1:8080/ | grep -q 'Trading Monitor'
+
       - name: Upload paper evidence
         if: always()
         uses: actions/upload-artifact@v4
